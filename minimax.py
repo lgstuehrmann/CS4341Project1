@@ -54,7 +54,7 @@ def min_move(board_state):
 		score = max_move(clone)
 		if score < best_score:
 			best_move = m
-			best_score = score:
+			best_score = score
 	return best_score
 
 
@@ -114,7 +114,7 @@ def isOccupied(currBoard, x,y):
 input: a possible move that the board wants to put into play
 output: a board state where the specified move has been added to the new board_state
 """
-next_board(move):
+def next_board(move):
 
 
 """
@@ -122,4 +122,4 @@ determine the "score" of the board
 input: the state of the board
 output: the score of the board based on math-stuff
 """
-board_score():
+def board_score():

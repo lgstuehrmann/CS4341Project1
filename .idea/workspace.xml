@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="8f2b2a82-f00c-4fa2-8047-2c4b6bf6ed92" name="Default" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change beforePath="$PROJECT_DIR$/minimax.py" afterPath="$PROJECT_DIR$/minimax.py" />
+    <list default="true" id="8f2b2a82-f00c-4fa2-8047-2c4b6bf6ed92" name="Default" comment="Merge branch 'master' of https://github.com/lgstuehrmann/CS4341Project1&#10;&#10;# Conflicts:&#10;#&#9;minimax.py">
+      <change beforePath="$PROJECT_DIR$/idfsearch.py" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/minimax.py" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/readwrite.py" afterPath="" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -17,19 +18,7 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="450">
-      <file leaf-file-name="minimax.py" pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/minimax.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="610">
-              <caret line="124" column="4" lean-forward="false" selection-start-line="124" selection-start-column="4" selection-end-line="124" selection-end-column="4" />
-              <folding>
-                <element signature="e#153#171#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="referee.py" pinned="false" current-in-tab="false">
+      <file leaf-file-name="referee.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/referee.py">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="250">
@@ -210,9 +199,7 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="125">
           <caret line="5" column="0" lean-forward="false" selection-start-line="5" selection-start-column="0" selection-end-line="5" selection-end-column="0" />
-          <folding>
-            <element signature="e#153#171#0" expanded="true" />
-          </folding>
+          <folding />
         </state>
       </provider>
     </entry>
@@ -228,9 +215,7 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="275">
           <caret line="12" column="0" lean-forward="true" selection-start-line="12" selection-start-column="0" selection-end-line="12" selection-end-column="0" />
-          <folding>
-            <element signature="e#141#155#0" expanded="false" />
-          </folding>
+          <folding />
         </state>
       </provider>
     </entry>
@@ -259,11 +244,9 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/minimax.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="610">
-          <caret line="124" column="4" lean-forward="false" selection-start-line="124" selection-start-column="4" selection-end-line="124" selection-end-column="4" />
-          <folding>
-            <element signature="e#153#171#0" expanded="true" />
-          </folding>
+        <state relative-caret-position="360">
+          <caret line="126" column="0" lean-forward="false" selection-start-line="126" selection-start-column="0" selection-end-line="126" selection-end-column="0" />
+          <folding />
         </state>
       </provider>
     </entry>

@@ -138,8 +138,9 @@ def check_end():
 
 def str_to_move(moveString):
 	moveList = moveString.split()
-	return Move(moveList[1], moveList[2], moveList[0])
+	return referee.Move(moveList[0], moveList[1], moveList[2])
 
+#replace with str(referee.Move)
 def move_to_str(move):
 	moveString = "{} {} {}".format(move.p, move.c, move.r)
 	return moveString

@@ -29,16 +29,17 @@ def minimax(board_state):
 	# get list of possible moves ***(later fixed to smaller list)
 	moves = board_state.get_available_moves()
 	best_move = moves[0]
-	best_score = float("-inf")
+	max_depth = 4
+	best_score = alpha_beta(float("-inf"), float("inf"))
 	for m in moves:
 		# clone the state of the board with that possible move
 		clone = board_state.next_board(m)
 		# Now look at the move options available to the min player and get score
-		score = min_move(clone)
+		score = min_move(clone, max_depth, best_score)
 		# check to see if the move is the best move based on score knowledge
-		if score > best_score:
+		if score > best_score.a:
 			best_move = m
-			best_score = score
+			best_score.a = score
 	return best_move
 
 """
@@ -46,18 +47,21 @@ input: the board state after the program makes a theoretical move
 output: the "score" of the move that the min player will make based
 on a heuristic function we have yet to write
 """
-def min_move(board_state):
+def min_move(board_state, max_depth, best_score):
+	max_depth -= 1
 	# list of the moves available to the opponent
 	moves = board_state.get_available_moves()
 	best_move = moves[0]
-	best_score = float("inf")
 	for m in moves:
 		clone = board_state.next_board(m)
-		score = max_move(clone)
-		if score < best_score:
+		if max_depth == 0:
+			score = clone.board_score()
+		else:
+			score = max_move(clone, max_depth, best_score)
+		if score < best_score.b:
 			best_move = m
-			best_score = score:
-	return best_score
+			best_score.b = score:
+	return best_score.b
 
 
 """
@@ -65,20 +69,21 @@ input: the board state after the opponent makes a move
 output: the "score" of the move that the max player will make
 might make based on a heuristic function we have yet to write
 """
-def max_move(board_state):
+def max_move(board_state, max_depth, best_score):
+	max_depth -= 1
 	# list of the moves available to the player after opponent moves
 	moves = board_state.state.get_available_moves()
 	best_move = moves[0]
-	best_score = float("-inf")
 	for m in moves:
 		clone = board_state.next_board(move)
-		# next line creates infinite loop right now
-		#score = min_move(clone)
-		score = clone.board_score()
-		if score > best_score:
+		if max_depth == 0:
+			score = clone.board_score()
+		else:
+			score = min_move(clone, max_depth, best_score)
+		if score > best_score.a:
 			best_move = m
-			best_score = score
-	return best_score
+			best_score.a = score
+	return best_score.a
 
 # *** Following funnctions inside the yet to be made board class
 """
@@ -116,7 +121,7 @@ def isOccupied(currBoard, x,y):
 input: a possible move that the board wants to put into play
 output: a board state where the specified move has been added to the new board_state
 """
-next_board(move):
+def next_board(move):
 
 
 """
@@ -124,8 +129,16 @@ determine the "score" of the board
 input: the state of the board
 output: the score of the board based on math-stuff
 """
-board_score():
+def board_score():
+"""
+	want this to work in a way where the program (currently) applies a +1 to each
+	location around a friendly piece (unless the opposing player has a piece there,
+	but maybe ignore that part for now). 
+	convert the letters of the columns into numbers (easiest way I can think of currently)
+	do we want to keep track of each piece in play currently, then from there determine scores
+	from there, rather than continually looking at new pieces. 
 
+	"""
 
 #File readwrite functions below
 def check_turn():

@@ -3,11 +3,17 @@
 #
 
 import numpy as np
+from time import sleep
+
+from __builtin__ import file
+
 import referee
 import tester
 import os.path
-from threading import Thread
-# alpha_beta class containing alpha beta values 
+from threading import Thread, Timer
+
+
+# alpha_beta class containing alpha beta values
 class alpha_beta:
 	def __init__(self, alpha, beta):
 		self.a = alpha
@@ -126,18 +132,16 @@ input: the state of the board
 output: the score of the board based on math-stuff
 """
 def board_score():
+	return 0
 
 """
-	want this to work in a way where the program (currently) applies a +1 to each
-	location around a friendly piece (unless the opposing player has a piece there,
-	but maybe ignore that part for now). 
-	convert the letters of the columns into numbers (easiest way I can think of currently)
-	do we want to keep track of each piece in play currently, then from there determine scores
-	from there, rather than continually looking at new pieces. 
-
-	"""
-
-#File readwrite functions below
+want this to work in a way where the program (currently) applies a +1 to each
+location around a friendly piece (unless the opposing player has a piece there,
+but maybe ignore that part for now).
+convert the letters of the columns into numbers (easiest way I can think of currently)
+do we want to keep track of each piece in play currently, then from there determine scores
+from there, rather than continually looking at new pieces.
+"""
 def check_turn():
 	#True if our turn, false otherwise
 	return os.path.exists("Sno_Stu_Son.go")
@@ -155,13 +159,17 @@ def move_to_str(move):
 	moveString = "{} {} {}".format(move.p, move.c, move.r)
 	return moveString
 
+timeout_flag = 0
+
 def timeout():
+	timeout_flag = 1
+	file("move_file", 'r').close()
 	with open("move_file", 'w') as f:
 		f.write("Sno_Stu_Son D 8")
 
 def make_move():
-	oppMove = Move('Z', 0, "groupname")
-	playerMove = Move('Z', 0, "Sno_Stu_Son")
+	oppMove = referee.Move("groupname", 0, "Z")
+	playerMove = referee.Move("Sno_Stu_Son", 0, "Z")
 	if check_turn() is True:
 		if check_end() is False:
 			with open("move_file", 'r') as f:
@@ -177,20 +185,24 @@ def make_move():
 					oppMove = str_to_move(move)
 			playerMove = minimax(next_board(oppMove))
 			moveString = move_to_str(playerMove)
-			with open("move_file", 'w') as f:
-				f.write(moveString)
+			if timeout_flag is 0:
+				with open("move_file", 'w') as f:
+					f.write(moveString)
+			else:
+				print("Process went over 10 second limit")
 		else:
 			print("Game over")
 	else:
 		print("Not your turn")
 
-#make_move()
-
-# t1 = Thread(target=Timer, args=(9.9, timeout))
-# t2 = Thread(target=make_move, name=moveThread)
-
-# while check_turn() is False:
-# 	sleep(0.025)
-
-# t1.start()
-# t2.start()
+def turn_loop():
+	t1 = Thread(target=Timer, args=(9, 9, timeout))
+	t2 = Thread(target=make_move)
+	while check_turn() is False:
+		sleep(0.025)
+	t1.start()
+	t2.start()
+	while True:
+		if t2.isAlive() is False:
+			t1.cancel()
+			break

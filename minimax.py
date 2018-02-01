@@ -159,6 +159,9 @@ def move_to_str(move):
 	moveString = "{} {} {}".format(move.p, move.c, move.r)
 	return moveString
 
+def letter_to_int(letter):
+	return ord(letter) - 65
+
 timeout_flag = 0
 
 def timeout():
@@ -170,30 +173,27 @@ def timeout():
 def make_move():
 	oppMove = referee.Move("groupname", 0, "Z")
 	playerMove = referee.Move("Sno_Stu_Son", 0, "Z")
-	if check_turn() is True:
-		if check_end() is False:
-			with open("move_file", 'r') as f:
-				move = f.readline()
-				if move is '':
-					#If the first line of the file is empty, then this is the first move of the game
-					#White stones, make a move
-					#playerMove = minimax(empty board_state)
-					print("Empty file")
-				else:
-					#If there is a move in the file, then this is not the first move of the game
-					#Black stones, send opponent's move to str_to_move
-					oppMove = str_to_move(move)
-			playerMove = minimax(next_board(oppMove))
-			moveString = move_to_str(playerMove)
-			if timeout_flag is 0:
-				with open("move_file", 'w') as f:
-					f.write(moveString)
+	if check_end() is False:
+		with open("move_file", 'r') as f:
+			move = f.readline()
+			if move is '':
+				#If the first line of the file is empty, then this is the first move of the game
+				#White stones, make a move
+				#playerMove = minimax(empty board_state)
+				print("Empty file")
 			else:
-				print("Process went over 10 second limit")
+				#If there is a move in the file, then this is not the first move of the game
+				#Black stones, send opponent's move to str_to_move
+				oppMove = str_to_move(move)
+		playerMove = minimax(next_board(oppMove))
+		moveString = move_to_str(playerMove)
+		if timeout_flag is 0:
+			with open("move_file", 'w') as f:
+				f.write(moveString)
 		else:
-			print("Game over")
+			print("Move went over 10 second limit")
 	else:
-		print("Not your turn")
+		print("Game over")
 
 def turn_loop():
 	t1 = Thread(target=Timer, args=(9, 9, timeout))

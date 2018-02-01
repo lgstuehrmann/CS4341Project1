@@ -51,7 +51,6 @@ def min_move(board_state, max_depth, best_score):
 	max_depth -= 1
 	# list of the moves available to the opponent
 	moves = board_state.get_available_moves()
-	best_move = moves[0]
 	for m in moves:
 		clone = board_state.next_board(m)
 		if max_depth == 0:
@@ -59,8 +58,7 @@ def min_move(board_state, max_depth, best_score):
 		else:
 			score = max_move(clone, max_depth, best_score)
 		if score < best_score.b:
-			best_move = m
-			best_score.b = score:
+			best_score.b = score
 	return best_score.b
 
 
@@ -73,7 +71,6 @@ def max_move(board_state, max_depth, best_score):
 	max_depth -= 1
 	# list of the moves available to the player after opponent moves
 	moves = board_state.state.get_available_moves()
-	best_move = moves[0]
 	for m in moves:
 		clone = board_state.next_board(move)
 		if max_depth == 0:
@@ -81,7 +78,6 @@ def max_move(board_state, max_depth, best_score):
 		else:
 			score = min_move(clone, max_depth, best_score)
 		if score > best_score.a:
-			best_move = m
 			best_score.a = score
 	return best_score.a
 
@@ -122,7 +118,7 @@ input: a possible move that the board wants to put into play
 output: a board state where the specified move has been added to the new board_state
 """
 def next_board(move):
-
+    return 1
 
 """
 determine the "score" of the board 
@@ -130,6 +126,7 @@ input: the state of the board
 output: the score of the board based on math-stuff
 """
 def board_score():
+
 """
 	want this to work in a way where the program (currently) applies a +1 to each
 	location around a friendly piece (unless the opposing player has a piece there,

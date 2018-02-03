@@ -76,18 +76,13 @@ def min_move(board_state, max_depth, alphabeta, temp_total):
         clone = next_board(board_state, m)
         # subtract value of opponent mve from board score val
         temp_total -= board_score(clone, m)
+        # if in final node
         if max_depth == 0:
-            # temp_total is equal to the final score each move makes
-            tempscore = temp_total
-            # if tempscore is greater than final score, take that
-            if tempscore > finalscore:
-                finalscore = tempscore
-                alphabeta.a = finalscore
-
+            return temp_total
         else:
-            abnew = max_move(clone, max_depth, alphabeta, temp_total)
-            if abnew.b < alphabeta.b:
-                alphabeta.b = abnew.b
+            score = max_move(clone, max_depth, alphabeta, temp_total)
+            if score < alphabeta.b:
+                alphabeta.b = score
     return alphabeta
 
 
@@ -108,16 +103,11 @@ def max_move(board_state, max_depth, alphabeta, temp_total):
         clone = next_board(board_state, m)
         temp_total += board_score(clone, m)
         if max_depth == 0:
-            # temp_total is equal to the final score each move makes
-            tempscore = temp_total
-            # if tempscore is less than final score, take that
-            if tempscore < finalscore:
-                finalscore = tempscore
-                alphabeta.b = finalscore
+            return temp_total
         else:
-            abnew = min_move(clone, max_depth, alphabeta, temp_total)
-            if abnew.a > alphabeta.a:
-                alphabeta.a = abnew.a
+            score = min_move(clone, max_depth, alphabeta, temp_total)
+            if score > alphabeta.a:
+                alphabeta.a = score
     return alphabeta
 
 

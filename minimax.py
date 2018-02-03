@@ -9,7 +9,8 @@ import os.path
 
 # Global Variable Total_Score keeps track of the known score of the board
 Total_Score = 0
-
+Current_Board_State = referee.GomokuBoard(15, 15)
+Opponent = "groupname"
 
 # alpha_beta class containing alpha beta values
 class alpha_beta:
@@ -37,7 +38,7 @@ output: the move that our program should make
 def minimax(board_state):
     # get list of possible moves ***(later fixed to smaller list)
     global Total_Score
-    moves = board_state.get_available_moves()
+    moves = get_available_moves(board_state, "Sno_Stu_Son")
     best_move = moves[0]
     max_depth = 4
     alphabeta = alpha_beta(float("-inf"), float("inf"))
@@ -45,15 +46,15 @@ def minimax(board_state):
         # reset temp_Total to Total_Score
         temp_total = Total_Score
         # clone the state of the board with that possible move
-        clone = board_state.next_board(m)
+        clone = next_board(board_state, m)
         # Still need board_score function
-        temp_total += clone.board_score(m)
+        temp_total += board_score(clone, m)
         # Now look at the move options available to the min player and get score
-        score = min_move(clone, max_depth, alpha_beta, temp_total)
+        score = min_move(clone, max_depth, alphabeta, temp_total)
         # check to see if the move is the best move based on score knowledge
-        if score > alpha_beta.a:
+        if score > alphabeta.a:
             best_move = m
-            alpha_beta.a = score
+            alphabeta.a = score
     # Before returning move, add board score change made by best_move
     Total_Score += clone.board_score(best_move)
     return best_move
@@ -70,11 +71,11 @@ on a heuristic function we have yet to write
 def min_move(board_state, max_depth, alphabeta, temp_total):
     max_depth -= 1
     # list of the moves available to the opponent
-    moves = board_state.get_available_moves()
+    moves = get_available_moves(board_state, Opponent)
     for m in moves:
-        clone = board_state.next_board(m)
+        clone = next_board(board_state, m)
         # subtract value of opponent mve from board score val
-        temp_total -= clone.board_score(m)
+        temp_total -= board_score(clone, m)
         if max_depth == 0:
             # temp_total is equal to the final score each move makes
             tempscore = temp_total
@@ -99,14 +100,13 @@ might make based on a heuristic function we have yet to write
 
 
 def max_move(board_state, max_depth, alphabeta, temp_total):
-
     max_depth -= 1
     finalscore = float("inf")
     # list of the moves available to the player after opponent moves
-    moves = board_state.state.get_available_moves()
+    moves = get_available_moves(board_state, "Sno_Stu_Son")
     for m in moves:
-        clone = board_state.next_board(m)
-        temp_total += clone.board_score(m)
+        clone = next_board(board_state, m)
+        temp_total += board_score(clone, m)
         if max_depth == 0:
             # temp_total is equal to the final score each move makes
             tempscore = temp_total
@@ -129,18 +129,18 @@ output: a list of all possible moves that the program should consider
 
 
 def get_available_moves(currBoard, team):
-    stack = list
+    stack = []
     if team == "Sno_Stu_Son":
         marker = 'P'
     else:
         marker = 'O'
-    for each in currBoard.x:
-        for one in currBoard.y:
+    for each in range(currBoard.width):
+        for one in range(currBoard.height):
             if isOccupied(currBoard, each, one):
                 break
             else:
                 potentialMove = referee.Move(marker, each, one)
-                stack += potentialMove
+                stack.append(potentialMove)
 
     return stack
 
@@ -153,8 +153,7 @@ returns false otherwise
 
 
 def isOccupied(currBoard, x, y):
-    index = (x, y)
-    if referee.GomokuBoard.isFieldOpen(currBoard, index):
+    if referee.GomokuBoard.isFieldOpen(currBoard, x, y):
         check = False
     else:
         check = True
@@ -167,8 +166,9 @@ output: a board state where the specified move has been added to the new board_s
 """
 
 
-def next_board(move):
-    return 1
+def next_board(board_state, move):
+    board_state.placeToken(move)
+    return board_state
 
 
 """
@@ -180,10 +180,10 @@ output: the score difference that the specified move made on the board
 
 def board_score(currBoard, move):
     # restrict range to 0 - boardsize
-    xMin = max(move.c - 5, 0)
-    xMax = min(move.c + 5, currBoard.width)
-    yMin = max(move.r - 5, 0)
-    yMax = min(move.r + 5, currBoard.height)
+    xMin = max(move.x - 5, 0)
+    xMax = min(move.x + 5, currBoard.width)
+    yMin = max(move.y - 5, 0)
+    yMax = min(move.y + 5, currBoard.height)
 
     smallBoard = [[0 for x in range(xMax - xMin)] for y in range(yMax - yMin)]
     smallx = 0
@@ -290,7 +290,9 @@ def check_end():
 
 def str_to_move(moveString):
     moveList = moveString.split()
-    return referee.Move(moveList[0], letter_to_int(moveList[1]), int(moveList[2]))
+    global Opponent
+    Opponent = moveList[0]
+    return referee.Move(Opponent, letter_to_int(moveList[1]), int(moveList[2]))
 
 
 # replace with str(referee.Move)
@@ -315,7 +317,7 @@ def timeout():
 
 
 def make_move():
-    oppMove = referee.Move("groupname", letter_to_int("A"), 0)
+    oppMove = referee.Move(Opponent, letter_to_int("A"), 0)
     playerMove = referee.Move("Sno_Stu_Son", letter_to_int("A"), 0)
     if check_end() is False:
         with open("move_file", 'r') as f:
@@ -329,7 +331,7 @@ def make_move():
                 # If there is a move in the file, then this is not the first move of the game
                 # Black stones, send opponent's move to str_to_move
                 oppMove = str_to_move(move)
-        playerMove = minimax(next_board(oppMove))
+        playerMove = minimax(next_board(Current_Board_State, oppMove))
         moveString = str(playerMove)
         if timeout_flag is 0:
             with open("move_file", 'w') as f:

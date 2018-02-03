@@ -5,7 +5,6 @@
 from time import sleep
 from io import FileIO
 import referee
-import tester
 import os.path
 from threading import Thread, Timer
 
@@ -69,7 +68,7 @@ on a heuristic function we have yet to write
 """
 
 
-def min_move(board_state, max_depth, alpha_beta, temp_total):
+def min_move(board_state, max_depth, alphabeta, temp_total):
     max_depth -= 1
     # list of the moves available to the opponent
     moves = board_state.get_available_moves()
@@ -78,12 +77,18 @@ def min_move(board_state, max_depth, alpha_beta, temp_total):
         # subtract value of opponent mve from board score val
         temp_total -= clone.board_score(m)
         if max_depth == 0:
-            return temp_total
+            # temp_total is equal to the final score each move makes
+            tempscore = temp_total
+            # if tempscore is greater than final score, take that
+            if tempscore > finalscore:
+                finalscore = tempscore
+                alphabeta.a = finalscore
+
         else:
-            score = max_move(clone, max_depth, alpha_beta, temp_total)
-            if score < alpha_beta.b:
-                alpha_beta.b = score
-            return alpha_beta.b
+            abnew = max_move(clone, max_depth, alphabeta, temp_total)
+            if abnew.b < alphabeta.b:
+                alphabeta.b = abnew.b
+    return alphabeta
 
 
 """
@@ -94,20 +99,26 @@ might make based on a heuristic function we have yet to write
 """
 
 
-def max_move(board_state, max_depth, alpha_beta, temp_total):
+def max_move(board_state, max_depth, alphabeta, temp_total):
     max_depth -= 1
+    finalscore = float("inf")
     # list of the moves available to the player after opponent moves
     moves = board_state.state.get_available_moves()
     for m in moves:
         clone = board_state.next_board(m)
         temp_total += clone.board_score(m)
         if max_depth == 0:
-            return temp_total
+            # temp_total is equal to the final score each move makes
+            tempscore = temp_total
+            # if tempscore is less than final score, take that
+            if tempscore < finalscore:
+                finalscore = tempscore
+                alphabeta.b = finalscore
         else:
-            score = min_move(clone, max_depth, alpha_beta, temp_total)
-            if score > alpha_beta.a:
-                alpha_beta.a = score
-            return alpha_beta.a
+            abnew = min_move(clone, max_depth, alphabeta, temp_total)
+            if abnew.a > alphabeta.a:
+                alphabeta.a = abnew.a
+    return alphabeta
 
 
 # *** Following funnctions inside the yet to be made board class

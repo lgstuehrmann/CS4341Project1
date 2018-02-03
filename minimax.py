@@ -1,12 +1,11 @@
 # Script for development and testing of the minimax algorithm for Project 1.
 # Will use symmetry to prune identical game boards from the search tree.
 #
-
+import threading
 from time import sleep
 from io import FileIO
 import referee
 import os.path
-from threading import Thread, Timer
 
 # Global Variable Total_Score keeps track of the known score of the board
 Total_Score = 0
@@ -100,6 +99,7 @@ might make based on a heuristic function we have yet to write
 
 
 def max_move(board_state, max_depth, alphabeta, temp_total):
+    
     max_depth -= 1
     finalscore = float("inf")
     # list of the moves available to the player after opponent moves
@@ -290,7 +290,7 @@ def check_end():
 
 def str_to_move(moveString):
     moveList = moveString.split()
-    return referee.Move(moveList[0], moveList[1], moveList[2])
+    return referee.Move(moveList[0], letter_to_int(moveList[1]), int(moveList[2]))
 
 
 # replace with str(referee.Move)
@@ -315,8 +315,8 @@ def timeout():
 
 
 def make_move():
-    oppMove = referee.Move("groupname", 0, "Z")
-    playerMove = referee.Move("Sno_Stu_Son", 0, "Z")
+    oppMove = referee.Move("groupname", letter_to_int("A"), 0)
+    playerMove = referee.Move("Sno_Stu_Son", letter_to_int("A"), 0)
     if check_end() is False:
         with open("move_file", 'r') as f:
             move = f.readline()
@@ -330,7 +330,7 @@ def make_move():
                 # Black stones, send opponent's move to str_to_move
                 oppMove = str_to_move(move)
         playerMove = minimax(next_board(oppMove))
-        moveString = move_to_str(playerMove)
+        moveString = str(playerMove)
         if timeout_flag is 0:
             with open("move_file", 'w') as f:
                 f.write(moveString)
@@ -341,8 +341,9 @@ def make_move():
 
 
 def turn_loop():
-    t1 = Thread(target=Timer, args=(9, 9, timeout))
-    t2 = Thread(target=make_move)
+    #t1 = Thread(target=Timer, args=(9, 9, timeout))
+    t1 = threading.Timer(9, timeout)
+    t2 = threading.Thread(target=make_move)
     while check_turn() is False:
         sleep(0.025)
     t1.start()
@@ -350,8 +351,14 @@ def turn_loop():
     while True:
         if t2.isAlive() is False:
             t1.cancel()
-            break
+            return True
+        if t1.is_alive() is False:
+            return True
+
 
 if __name__ == "__main__":
-    while check_end() == False:
-        turn_loop()
+    turn_loop()
+    # turnFlag = 0
+    # while turnFlag is 0:
+    #     turn_loop()
+    #     turnFlag = 1

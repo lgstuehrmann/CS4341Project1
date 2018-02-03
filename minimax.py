@@ -4,7 +4,6 @@
 
 import numpy as np
 from time import sleep
-
 from __builtin__ import file
 
 import referee
@@ -123,8 +122,8 @@ output: a list of all possible moves that the program should consider
 
 def get_available_moves(currBoard, team):
     stack = list
-    if team == "white":
-        marker = 'X'
+    if team == "Sno_Stu_Son":
+        marker = 'P'
     else:
         marker = 'O'
     for each in currBoard.x:
@@ -344,3 +343,7 @@ def turn_loop():
         if t2.isAlive() is False:
             t1.cancel()
             break
+
+if __name__ == "__main__":
+    while check_end() == False:
+        turn_loop()

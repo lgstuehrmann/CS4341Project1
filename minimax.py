@@ -2,10 +2,8 @@
 # Will use symmetry to prune identical game boards from the search tree.
 #
 
-import numpy as np
 from time import sleep
-from __builtin__ import file
-
+from io import FileIO
 import referee
 import tester
 import os.path
@@ -43,7 +41,7 @@ def minimax(board_state):
     moves = board_state.get_available_moves()
     best_move = moves[0]
     max_depth = 4
-    alpha_beta = alpha_beta(float("-inf"), float("inf"))
+    alphabeta = alpha_beta(float("-inf"), float("inf"))
     for m in moves:
         # reset temp_Total to Total_Score
         global Total_Score
@@ -301,7 +299,7 @@ timeout_flag = 0
 def timeout():
     global timeout_flag
     timeout_flag = 1
-    file("move_file", 'r').close()
+    FileIO("move_file", 'r').close()
     with open("move_file", 'w') as f:
         f.write("Sno_Stu_Son D 8")
 

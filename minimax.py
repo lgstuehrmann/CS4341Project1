@@ -110,7 +110,7 @@ def max_move(board_state, max_depth, alphabeta, temp_total):
     return alphabeta.a
 
 
-# *** Following funnctions inside the yet to be made board class
+# *** Following functions inside the yet to be made board class
 """
 input: the current state of the board & the team who moves next
 output: a list of all possible moves that the program should consider
@@ -277,13 +277,7 @@ def str_to_move(moveString):
     moveList = moveString.split()
     global Opponent
     Opponent = moveList[0]
-    return referee.Move(Opponent, letter_to_int(moveList[1]), int(moveList[2]))
-
-
-# replace with str(referee.Move)
-def move_to_str(move):
-    moveString = "{} {} {}".format(move.p, move.c, move.r)
-    return moveString
+    return referee.Move(Opponent, letter_to_int(moveList[1].upper()), int(moveList[2]))
 
 
 def letter_to_int(letter):

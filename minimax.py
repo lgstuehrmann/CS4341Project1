@@ -11,7 +11,8 @@ import referee
 import tester
 import os.path
 from threading import Thread, Timer
-
+# Global Variable Total_Score keeps track of the known score of the board
+Total_Score = 0
 
 # alpha_beta class containing alpha beta values
 class alpha_beta:
@@ -31,61 +32,75 @@ by evaluating the states of the board
 input: the current state of the gomoku board
 output: the move that our program should make 
 """
+
 def minimax(board_state):
 	# get list of possible moves ***(later fixed to smaller list)
 	moves = board_state.get_available_moves()
 	best_move = moves[0]
 	max_depth = 4
-	best_score = alpha_beta(float("-inf"), float("inf"))
+	alpha_beta = alpha_beta(float("-inf"), float("inf"))
 	for m in moves:
+		# reset temp_Total to Total_Score
+		global Total_Score
+		temp_total = Total_Score 
 		# clone the state of the board with that possible move
 		clone = board_state.next_board(m)
+		# Still need board_score function
+		temp_total += clone.board_score(m)
 		# Now look at the move options available to the min player and get score
-		score = min_move(clone, max_depth, best_score)
+		score = min_move(clone, max_depth, alpha_beta, temp_total)
 		# check to see if the move is the best move based on score knowledge
-		if score > best_score.a:
+		if score > alpha_beta.a:
 			best_move = m
-			best_score.a = score
+			alpha_beta.a = score
+	# Before returning move, add board score change made by best_move
+	global Total_Score
+	Total_Score += clone.board_score(best_move)
 	return best_move
 
 """
-input: the board state after the program makes a theoretical move
+input: the board state after the opponent makes a move, max depth, 
+alpha beta values, and temporary total board score
 output: the "score" of the move that the min player will make based
 on a heuristic function we have yet to write
 """
-def min_move(board_state, max_depth, best_score):
+def min_move(board_state, max_depth, alpha_beta, temp_total):
 	max_depth -= 1
 	# list of the moves available to the opponent
 	moves = board_state.get_available_moves()
 	for m in moves:
 		clone = board_state.next_board(m)
+		# subtract value of opponent mve from board score val
+		temp_total -= clone.board_score(m)
 		if max_depth == 0:
-			score = clone.board_score()
+			return temp_total
 		else:
-			score = max_move(clone, max_depth, best_score)
-		if score < best_score.b:
-			best_score.b = score
-	return best_score.b
+			score = max_move(clone, max_depth, alpha_beta, temp_total)
+			if score < alpha_beta.b:
+				alpha_beta.b = score
+			return alpha_beta.b
 
 
 """
-input: the board state after the opponent makes a move
+input: the board state after the opponent makes a move, max depth, 
+alpha beta values, and temporary total board score
 output: the "score" of the move that the max player will make
 might make based on a heuristic function we have yet to write
 """
-def max_move(board_state, max_depth, best_score):
+def max_move(board_state, max_depth, alpha_beta, temp_total):
 	max_depth -= 1
 	# list of the moves available to the player after opponent moves
 	moves = board_state.state.get_available_moves()
 	for m in moves:
-		clone = board_state.next_board(move)
+		clone = board_state.next_board(m)
+		temp_total += clone.board_score(m)
 		if max_depth == 0:
-			score = clone.board_score()
+			return temp_total
 		else:
-			score = min_move(clone, max_depth, best_score)
-		if score > best_score.a:
-			best_score.a = score
-	return best_score.a
+			score = min_move(clone, max_depth, alpha_beta, temp_total)
+			if score > alpha_beta.a:
+				alpha_beta.a = score
+			return alpha_beta.a
 
 # *** Following funnctions inside the yet to be made board class
 """
@@ -128,10 +143,10 @@ def next_board(move):
 
 """
 determine the "score" of the board 
-input: the state of the board
-output: the score of the board based on math-stuff
+input: the state of the board and the last move made
+output: the score difference that the specified move made on the board
 """
-def board_score():
+def board_score(m):
 	return 0
 
 """

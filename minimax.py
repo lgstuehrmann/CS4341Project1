@@ -36,18 +36,16 @@ output: the move that our program should make
 
 
 def minimax(board_state):
-    # get list of possible moves ***(later fixed to smaller list)
     global Total_Score
+    # get list of possible moves for player
     moves = get_available_moves(board_state, "Sno_Stu_Son")
     best_move = moves[0]
     max_depth = 4
     alphabeta = alpha_beta(float("-inf"), float("inf"))
     for m in moves:
-        # reset temp_Total to Total_Score
         temp_total = Total_Score
-        # clone the state of the board with that possible move
+        # make a clone of the board with new move added
         clone = next_board(board_state, m)
-        # Still need board_score function
         temp_total += board_score(clone, m)
         # Now look at the move options available to the min player and get score
         score = min_move(clone, max_depth, alphabeta, temp_total)
@@ -56,7 +54,8 @@ def minimax(board_state):
             best_move = m
             alphabeta.a = score
     # Before returning move, add board score change made by best_move
-    Total_Score += clone.board_score(best_move)
+    clone = next_board(board_state, best_move)
+    Total_Score += board_score(clone, best_move)
     return best_move
 
 
@@ -75,15 +74,15 @@ def min_move(board_state, max_depth, alphabeta, temp_total):
     for m in moves:
         clone = next_board(board_state, m)
         # subtract value of opponent mve from board score val
-        temp_total -= board_score(clone, m)
+        temp_total += board_score(clone, m)
         # if in final node
-        if max_depth == 0:
-            return temp_total
+        if max_depth == 1:
+            score = temp_total
         else:
             score = max_move(clone, max_depth, alphabeta, temp_total)
-            if score < alphabeta.b:
-                alphabeta.b = score
-    return alphabeta
+        if score < alphabeta.b:
+            alphabeta.b = score
+    return alphabeta.b
 
 
 """
@@ -97,18 +96,18 @@ might make based on a heuristic function we have yet to write
 def max_move(board_state, max_depth, alphabeta, temp_total):
     max_depth -= 1
     finalscore = float("inf")
-    # list of the moves available to the player after opponent moves
+    # list of the moves available to the player
     moves = get_available_moves(board_state, "Sno_Stu_Son")
     for m in moves:
         clone = next_board(board_state, m)
         temp_total += board_score(clone, m)
-        if max_depth == 0:
-            return temp_total
+        if max_depth == 1:
+            score = temp_total
         else:
             score = min_move(clone, max_depth, alphabeta, temp_total)
-            if score > alphabeta.a:
-                alphabeta.a = score
-    return alphabeta
+        if score > alphabeta.a:
+            alphabeta.a = score
+    return alphabeta.a
 
 
 # *** Following funnctions inside the yet to be made board class

@@ -38,13 +38,13 @@ output: the move that our program should make
 
 def minimax(board_state):
     # get list of possible moves ***(later fixed to smaller list)
+    global Total_Score
     moves = board_state.get_available_moves()
     best_move = moves[0]
     max_depth = 4
     alphabeta = alpha_beta(float("-inf"), float("inf"))
     for m in moves:
         # reset temp_Total to Total_Score
-        global Total_Score
         temp_total = Total_Score
         # clone the state of the board with that possible move
         clone = board_state.next_board(m)
@@ -57,7 +57,6 @@ def minimax(board_state):
             best_move = m
             alpha_beta.a = score
     # Before returning move, add board score change made by best_move
-    global Total_Score
     Total_Score += clone.board_score(best_move)
     return best_move
 

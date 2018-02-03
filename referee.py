@@ -10,6 +10,12 @@ import shutil
 
 import copy
 
+class move:
+    def __init__(self, column, row, player):
+        self.c = column
+        self.r = row
+        self.p = player
+
 logging.basicConfig(format='%(levelname)s:  %(message)s', level=logging.DEBUG)
 logger = logging.getLogger(__file__)
 
@@ -56,8 +62,8 @@ class GomokuBoard(object):
         (x, y) = index
         return self._field[x][y]
 
-    def isFieldOpen(self, (x,y)):
-        return self._field[x][y].isEmpty
+    def isFieldOpen(self, row, column):
+        return self._field[row][column].isEmpty
 
     def placeToken(self, move):
         self.move_history.append(move)

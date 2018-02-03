@@ -99,7 +99,7 @@ might make based on a heuristic function we have yet to write
 
 
 def max_move(board_state, max_depth, alphabeta, temp_total):
-    
+
     max_depth -= 1
     finalscore = float("inf")
     # list of the moves available to the player after opponent moves

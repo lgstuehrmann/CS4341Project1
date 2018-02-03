@@ -120,16 +120,12 @@ output: a list of all possible moves that the program should consider
 
 def get_available_moves(currBoard, team):
     stack = []
-    if team == "Sno_Stu_Son":
-        marker = 'P'
-    else:
-        marker = 'O'
     for each in range(currBoard.width):
         for one in range(currBoard.height):
             if isOccupied(currBoard, each, one):
                 break
             else:
-                potentialMove = referee.Move(marker, each, one)
+                potentialMove = referee.Move(team, each, one)
                 stack.append(potentialMove)
 
     return stack

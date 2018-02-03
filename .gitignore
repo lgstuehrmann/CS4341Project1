@@ -1,3 +1,4 @@
 move_file
 *.go
 .idea/
+__pycache__/

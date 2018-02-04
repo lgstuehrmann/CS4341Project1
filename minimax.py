@@ -9,7 +9,7 @@ import os.path
 
 # Global Variable Total_Score keeps track of the known score of the board
 Total_Score = 0
-Current_Board_State = referee2.GomokuBoard(15, 15)
+Current_Board_State = None
 Opponent = "groupname"
 
 # alpha_beta class containing alpha beta values
@@ -122,7 +122,7 @@ output: a list of all possible moves that the program should consider
 def get_available_moves(currBoard, team):
     stack = []
     for each in range(currBoard.width):
-        for one in range(currBoard.height):
+        for one in range(1, currBoard.height):
             if isOccupied(currBoard, each, one):
                 break
             else:
@@ -178,9 +178,9 @@ def board_score(currBoard, move):
     for each in range(xMax, xMin):
         for one in range(yMin, yMax):
             team = currBoard.__getitem__[each][one].team
-            if team is None:
+            if team == None:
                 smallBoard[smallx][smally] = "-"
-            elif team is "Sno_Stu_Son":
+            elif team == "Sno_Stu_Son":
                 smallBoard[smallx][smally] = "P"
             else:
                 smallBoard[smallx][smally] = "O"
@@ -277,11 +277,14 @@ def check_end():
 
 def str_to_move(moveString):
     moveList = moveString.split()
-    return referee2.Move(moveList[0], letter_to_int(moveList[1].upper()), int(moveList[2]))
+    return referee2.Move(moveList[0], letter_to_int(moveList[1].upper()), int(moveList[2]) + 1)
 
 
 def move_to_str(move):
-    return "%s %c %s" % (str(move.team_name), chr(move.x + ord('A')), str(move.y + 1))
+    print(move.x, move.y)
+    ydir = move.y + 1
+    xdir = move.x + ord('A')
+    return "%s %c %s" % (str(move.team_name), chr(xdir), str(ydir))
 
 
 def letter_to_int(letter):
@@ -301,25 +304,29 @@ def timeout():
 
 def make_move():
     global Opponent
-    oppMove = referee2.Move(Opponent, "A", 1)
-    playerMove = referee2.Move("Sno_Stu_Son", "A", 1)
-    if check_end() is False:
+    global Current_Board_State
+    oppMove = None #referee2.Move(Opponent, letter_to_int("A"), 1)
+    playerMove = None #referee2.Move("Sno_Stu_Son", letter_to_int("A"), 1)
+    if check_end() == False:
         with open("move_file", 'r') as f:
             move = f.readline()
-            if move is '':
+            if len(move) == 0:
                 # If the first line of the file is empty, then this is the first move of the game
                 # White stones, make a move
                 # playerMove = minimax(empty board_state)
                 print("Empty file")
-                playerMove = referee2.Move("Sno_Stu_Son", "H", 7)
+                playerMove = referee2.Move("Sno_Stu_Son", letter_to_int("H"), 8)
             else:
                 # If there is a move in the file, then this is not the first move of the game
                 # Black stones, send opponent's move to str_to_move
                 oppMove = str_to_move(move)
+                print("Opp move", oppMove.x, oppMove.y)
                 Opponent = oppMove.team_name
-                playerMove = minimax(next_board(Current_Board_State, oppMove))
+                print(Opponent)
+                board_state = next_board(Current_Board_State, oppMove)
+                playerMove = minimax(board_state)
             moveString = move_to_str(playerMove)
-        if timeout_flag is 0:
+        if timeout_flag == 0:
             with open("move_file", 'w') as f:
                 f.write(moveString)
             return 0
@@ -331,13 +338,13 @@ def make_move():
 
 
 def turn_loop():
-    t1 = threading.Timer(9, timeout)
+    t1 = threading.Timer(8, timeout)
     #t2 = threading.Thread(target=make_move)
-    while check_turn() is False:
+    while check_turn() == False:
         sleep(0.025)
     t1.start()
     #t2.start()
-    if make_move() is 0:
+    if make_move() == 0:
         t1.cancel()
         return True
     else:
@@ -345,5 +352,7 @@ def turn_loop():
 
 
 if __name__ == "__main__":
+    Current_Board_State = referee2.GomokuBoard(15, 15)
     while not check_end():
         turn_loop()
+        sleep(0.5)

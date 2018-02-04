@@ -10,6 +10,12 @@ import shutil
 
 import copy
 
+class move:
+    def __init__(self, column, row, player):
+        self.c = column
+        self.r = row
+        self.p = player
+
 logging.basicConfig(format='%(levelname)s:  %(message)s', level=logging.DEBUG)
 logger = logging.getLogger(__file__)
 
@@ -56,8 +62,8 @@ class GomokuBoard(object):
         (x, y) = index
         return self._field[x][y]
 
-    def isFieldOpen(self, (x,y)):
-        return self._field[x][y].isEmpty
+    def isFieldOpen(self, row, column):
+        return self._field[row][column].isEmpty
 
     def placeToken(self, move):
         self.move_history.append(move)
@@ -70,10 +76,10 @@ class GomokuBoard(object):
         return board
     
     def printBoard(self, teams):
-        print ""
-        print "%s -- %s" % ('X', teams[0])
-        print "%s -- %s" % ('O', teams[1])
-        print ""
+        print("")
+        print("%s -- %s" % ('X', teams[0]))
+        print("%s -- %s" % ('O', teams[1]))
+        print("")
         sys.stdout.write("   ")
         for x in range(self.width):
             sys.stdout.write('%s ' % (chr(x+ord('A'))))
@@ -298,15 +304,10 @@ def waitForPlay(prev_mod_info, move_file_name="move_file"):
 
     played_in_time = True
     timeout = time.time() + turn_length_in_seconds
-    this_mod_info = os.stat(move_file_name).st_mtime
-    while( this_mod_info == prev_mod_info):
+    while( os.stat(move_file_name).st_mtime == prev_mod_info):
         if time.time() >= timeout:
             played_in_time = False
             break
-        try:
-            this_mod_info = os.stat(move_file_name).st_mtime
-        except WindowsError:
-            pass
         time.sleep(0.05)
     time.sleep(0.10) # a little bit extra to allow for file writeout to occur)
     return played_in_time

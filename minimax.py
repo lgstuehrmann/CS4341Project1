@@ -4,12 +4,12 @@
 import threading
 from time import sleep
 from io import FileIO
-import referee
+import referee2
 import os.path
 
 # Global Variable Total_Score keeps track of the known score of the board
 Total_Score = 0
-Current_Board_State = referee.GomokuBoard(15, 15)
+Current_Board_State = referee2.GomokuBoard(15, 15)
 Opponent = "groupname"
 
 # alpha_beta class containing alpha beta values
@@ -20,11 +20,11 @@ class alpha_beta:
 
 
 # move class with columns and rows
-class move:
-    def __init__(self, column, row, player):
-        self.c = column
-        self.r = row
-        self.p = player
+# class move:
+#     def __init__(self, column, row, player):
+#         self.c = column
+#         self.r = row
+#         self.p = player
 
 
 """
@@ -124,7 +124,7 @@ def get_available_moves(currBoard, team):
             if isOccupied(currBoard, each, one):
                 break
             else:
-                potentialMove = referee.Move(team, each, one)
+                potentialMove = referee2.Move(team, each, one)
                 stack.append(potentialMove)
 
     return stack
@@ -138,7 +138,7 @@ returns false otherwise
 
 
 def isOccupied(currBoard, x, y):
-    if referee.GomokuBoard.isFieldOpen(currBoard, x, y):
+    if referee2.GomokuBoard.isFieldOpen(currBoard, x, y):
         check = False
     else:
         check = True
@@ -275,9 +275,11 @@ def check_end():
 
 def str_to_move(moveString):
     moveList = moveString.split()
-    global Opponent
-    Opponent = moveList[0]
-    return referee.Move(Opponent, letter_to_int(moveList[1].upper()), int(moveList[2]))
+    return referee2.Move(moveList[0], letter_to_int(moveList[1].upper()), int(moveList[2]))
+
+
+def move_to_str(move):
+    return "%s %c %s" % (str(move.team_name), chr(move.x + ord('A')), str(move.y + 1))
 
 
 def letter_to_int(letter):
@@ -296,8 +298,9 @@ def timeout():
 
 
 def make_move():
-    oppMove = referee.Move(Opponent, letter_to_int("A"), 0)
-    playerMove = referee.Move("Sno_Stu_Son", letter_to_int("A"), 0)
+    global Opponent
+    oppMove = referee2.Move(Opponent, "A", 1)
+    playerMove = referee2.Move("Sno_Stu_Son", "A", 1)
     if check_end() is False:
         with open("move_file", 'r') as f:
             move = f.readline()
@@ -306,40 +309,39 @@ def make_move():
                 # White stones, make a move
                 # playerMove = minimax(empty board_state)
                 print("Empty file")
+                playerMove = referee2.Move("Sno_Stu_Son", "H", 7)
             else:
                 # If there is a move in the file, then this is not the first move of the game
                 # Black stones, send opponent's move to str_to_move
                 oppMove = str_to_move(move)
-        playerMove = minimax(next_board(Current_Board_State, oppMove))
-        moveString = str(playerMove)
+                Opponent = oppMove.team_name
+                playerMove = minimax(next_board(Current_Board_State, oppMove))
+            moveString = move_to_str(playerMove)
         if timeout_flag is 0:
             with open("move_file", 'w') as f:
                 f.write(moveString)
+            return 0
         else:
             print("Move went over 10 second limit")
     else:
         print("Game over")
+    return 1
 
 
 def turn_loop():
-    #t1 = Thread(target=Timer, args=(9, 9, timeout))
     t1 = threading.Timer(9, timeout)
-    t2 = threading.Thread(target=make_move)
+    #t2 = threading.Thread(target=make_move)
     while check_turn() is False:
         sleep(0.025)
     t1.start()
-    t2.start()
-    while True:
-        if t2.isAlive() is False:
-            t1.cancel()
-            return True
-        if t1.is_alive() is False:
-            return True
+    #t2.start()
+    if make_move() is 0:
+        t1.cancel()
+        return True
+    else:
+        return False
 
 
 if __name__ == "__main__":
-    turn_loop()
-    # turnFlag = 0
-    # while turnFlag is 0:
-    #     turn_loop()
-    #     turnFlag = 1
+    while not check_end():
+        turn_loop()

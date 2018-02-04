@@ -43,10 +43,11 @@ def minimax(board_state):
     max_depth = 4
     alphabeta = alpha_beta(float("-inf"), float("inf"))
     while len(moves) != 0:
+        board = board_state
         m = moves.pop(0)
         temp_total = Total_Score
         # make a clone of the board with new move added
-        clone = next_board(board_state, m)
+        clone = next_board(board, m)
         temp_total += board_score(clone, m)
         # Now look at the move options available to the min player and get score
         score = min_move(clone, max_depth, alphabeta, temp_total)
@@ -73,8 +74,9 @@ def min_move(board_state, max_depth, alphabeta, temp_total):
     # list of the moves available to the opponent
     moves = get_available_moves(board_state, Opponent)
     while len(moves) != 0:
+        board = board_state
         m = moves.pop(0)
-        clone = next_board(board_state, m)
+        clone = next_board(board, m)
         # subtract value of opponent mve from board score val
         temp_total += board_score(clone, m)
         # if in final node
@@ -100,8 +102,9 @@ def max_move(board_state, max_depth, alphabeta, temp_total):
     # list of the moves available to the player
     moves = get_available_moves(board_state, "Sno_Stu_Son")
     while len(moves):
+        board = board_state
         m = moves.pop(0)
-        clone = next_board(board_state, m)
+        clone = next_board(board, m)
         temp_total += board_score(clone, m)
         if max_depth == 1:
             score = temp_total

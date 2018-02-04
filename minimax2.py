@@ -38,7 +38,7 @@ output: the move that our program should make
 def minimax(board_state):
     global Total_Score
     # get list of possible moves for player
-    moves = get_available_moves(board_state, "Sno_Stu_Son")
+    moves = get_available_moves(board_state, "Sno_Stu_Son2")
     best_move = moves[0]
     max_depth = 4
     alphabeta = alpha_beta(float("-inf"), float("inf"))
@@ -102,7 +102,7 @@ might make based on a heuristic function we have yet to write
 def max_move(board_state, max_depth, alphabeta, temp_total):
     max_depth -= 1
     # list of the moves available to the player
-    moves = get_available_moves(board_state, "Sno_Stu_Son")
+    moves = get_available_moves(board_state, "Sno_Stu_Son2")
     while len(moves):
         board = board_state
         m = moves.pop(0)
@@ -184,7 +184,7 @@ def board_score(currBoard, move):
             team = currBoard.__getitem__[each][one].team
             if team == None:
                 smallBoard[smallx][smally] = "-"
-            elif team == "Sno_Stu_Son":
+            elif team == "Sno_Stu_Son2":
                 smallBoard[smallx][smally] = "P"
             else:
                 smallBoard[smallx][smally] = "O"
@@ -273,7 +273,7 @@ from there, rather than continually looking at new pieces.
 
 def check_turn():
     # True if our turn, false otherwise
-    return os.path.exists("Sno_Stu_Son.go")
+    return os.path.exists("Sno_Stu_Son2.go")
 
 
 def check_end():
@@ -305,14 +305,14 @@ def timeout():
     timeout_flag = 1
     FileIO("move_file", 'r').close()
     with open("move_file", 'w') as f:
-        f.write("Sno_Stu_Son D 8")
+        f.write("Sno_Stu_Son2 D 8")
 
 
 def make_move():
     global Opponent
     global Current_Board_State
     oppMove = None #referee2.Move(Opponent, letter_to_int("A"), 1)
-    playerMove = None #referee2.Move("Sno_Stu_Son", letter_to_int("A"), 1)
+    playerMove = None #referee2.Move("Sno_Stu_Son2", letter_to_int("A"), 1)
     if check_end() == False:
         with open("move_file", 'r') as f:
             move = f.readline()
@@ -321,7 +321,7 @@ def make_move():
                 # White stones, make a move
                 # playerMove = minimax(empty board_state)
                 print("Empty file")
-                playerMove = referee2.Move("Sno_Stu_Son", letter_to_int("H"), 8)
+                playerMove = referee2.Move("Sno_Stu_Son2", letter_to_int("H"), 8)
             else:
                 # If there is a move in the file, then this is not the first move of the game
                 # Black stones, send opponent's move to str_to_move

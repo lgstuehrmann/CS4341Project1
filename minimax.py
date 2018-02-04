@@ -128,7 +128,7 @@ def get_available_moves(currBoard, team):
             else:
                 potentialMove = referee2.Move(team, each, one)
                 stack.append(potentialMove)
-
+    print('[%s]' % ', '.join(map(str, stack)))
     return stack
 
 

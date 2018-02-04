@@ -42,7 +42,8 @@ def minimax(board_state):
     best_move = moves[0]
     max_depth = 4
     alphabeta = alpha_beta(float("-inf"), float("inf"))
-    for m in moves:
+    while len(moves) != 0:
+        m = moves.pop(0)
         temp_total = Total_Score
         # make a clone of the board with new move added
         clone = next_board(board_state, m)
@@ -71,7 +72,8 @@ def min_move(board_state, max_depth, alphabeta, temp_total):
     max_depth -= 1
     # list of the moves available to the opponent
     moves = get_available_moves(board_state, Opponent)
-    for m in moves:
+    while len(moves) != 0:
+        m = moves.pop(0)
         clone = next_board(board_state, m)
         # subtract value of opponent mve from board score val
         temp_total += board_score(clone, m)
@@ -95,10 +97,10 @@ might make based on a heuristic function we have yet to write
 
 def max_move(board_state, max_depth, alphabeta, temp_total):
     max_depth -= 1
-    finalscore = float("inf")
     # list of the moves available to the player
     moves = get_available_moves(board_state, "Sno_Stu_Son")
-    for m in moves:
+    while len(moves):
+        m = moves.pop(0)
         clone = next_board(board_state, m)
         temp_total += board_score(clone, m)
         if max_depth == 1:

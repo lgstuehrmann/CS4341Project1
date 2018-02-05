@@ -36,11 +36,15 @@ class GomokuBoard(object):
         team = None
 
         def playField(self, team):
-            result = False
             self.isEmpty = False
             self.team = team
-            result = True
-            return result
+            return True
+
+        # Added to remove pieces at the end of the loop in minimax
+        def emptyField(self):
+            self.isEmpty = True
+            self.team = None
+            return True
 
     width = None
     height = None
@@ -52,11 +56,7 @@ class GomokuBoard(object):
         self._field = [[self._SingleField() for y in range(height)]
                                             for x in range(width)]
 
-        self.init_field() #originally used to init minefield, but not really useful here...
-        self.move_history = []
-
-    def init_field(self):
-        pass
+        self.move_history = []      # not really necessary for us right?
 
     def __getitem__(self, index):
         (x, y) = index
@@ -68,6 +68,9 @@ class GomokuBoard(object):
     def placeToken(self, move):
         self.move_history.append(move)
         return self._field[move.x][move.y].playField(move.team_name)
+
+    def removeToken(self,move):
+        return self._field[move.x][move.y].emptyField()
 
     def getBoard(self):
         board = [[self._field[x][y].team for y in range(self.height)]
@@ -122,7 +125,7 @@ class Move(object):
 
     def __str__(self):
         return "%s %s %s" % (self.team_name, chr(self.x + ord('a')), (self.y + 1))
-
+# do we need this?
 class Game(object):
     def __init__(self, size_x=board_width, size_y=board_height, length_to_win=length_to_win):
         self.turn = 0
@@ -314,7 +317,7 @@ def waitForPlay(prev_mod_info, move_file_name="move_file"):
 
 
 
-
+# not needed here
 def play_gomoku(team1, team2):
 
 

@@ -9,7 +9,7 @@ import os.path
 
 # Global Variable Total_Score keeps track of the known score of the board
 Total_Score = 0
-Current_Board_State = None
+Current_Board_State = None          # Referee doesn't use a global board variable
 Opponent = "groupname"
 
 # alpha_beta class containing alpha beta values
@@ -17,15 +17,6 @@ class alpha_beta:
     def __init__(self, alpha, beta):
         self.a = alpha
         self.b = beta
-
-
-# move class with columns and rows
-# class move:
-#     def __init__(self, column, row, player):
-#         self.c = column
-#         self.r = row
-#         self.p = player
-
 
 """
 This is the algorithm that looks for the best move for the program to make
@@ -45,14 +36,13 @@ def minimax(board_state):
     while len(moves) != 0:
         board = board_state
         m = moves.pop(0)
-        # print(m)
-        # print("next move")
         temp_total = Total_Score
-        # make a clone of the board with new move added
-        clone = next_board(board, m)
-        temp_total += board_score(clone, m)
+        # add move to the board
+        board.placeToken(m)
+        temp_total += board_score(board, m)
         # Now look at the move options available to the min player and get score
-        score = min_move(clone, max_depth, alphabeta, temp_total)
+        score = min_move(board, max_depth, alphabeta, temp_total)
+        board.removeToken(m)
         # check to see if the move is the best move based on score knowledge
         if score > alphabeta.a:
             best_move = m
@@ -78,16 +68,17 @@ def min_move(board_state, max_depth, alphabeta, temp_total):
     while len(moves) != 0:
         board = board_state
         m = moves.pop(0)
-        clone = next_board(board, m)
+        board.placeToken(m)
         # subtract value of opponent mve from board score val
-        temp_total += board_score(clone, m)
+        temp_total += board_score(board, m)
         # if in final node
         if max_depth == 1:
             score = temp_total
         else:
-            score = max_move(clone, max_depth, alphabeta, temp_total)
+            score = max_move(board, max_depth, alphabeta, temp_total)
         if score < alphabeta.b:
             alphabeta.b = score
+        board.removeToken(m)
     return alphabeta.b
 
 
@@ -106,14 +97,15 @@ def max_move(board_state, max_depth, alphabeta, temp_total):
     while len(moves):
         board = board_state
         m = moves.pop(0)
-        clone = next_board(board, m)
-        temp_total += board_score(clone, m)
+        board.placeToken(m)
+        temp_total += board_score(board, m)
         if max_depth == 1:
             score = temp_total
         else:
-            score = min_move(clone, max_depth, alphabeta, temp_total)
+            score = min_move(board, max_depth, alphabeta, temp_total)
         if score > alphabeta.a:
             alphabeta.a = score
+        board.removeToken(m)
     return alphabeta.a
 
 
@@ -359,6 +351,7 @@ def turn_loop():
 
 
 if __name__ == "__main__":
+    global Current_Board_State
     Current_Board_State = referee2.GomokuBoard(15, 15)
     while not check_end():
         turn_loop()

@@ -38,7 +38,7 @@ def minimax(board_state):
         m = moves.pop(0)
         temp_total = Total_Score
         # add move to the board
-        board.placeToken(m)
+        board.placeFakeToken(m)
         temp_total += board_score(board, m)
         # Now look at the move options available to the min player and get score
         score = min_move(board, max_depth, alphabeta, temp_total)
@@ -48,8 +48,8 @@ def minimax(board_state):
             best_move = m
             alphabeta.a = score
     # Before returning move, add board score change made by best_move
-    clone = next_board(board_state, best_move)
-    Total_Score += board_score(clone, best_move)
+    board_state.placeToken(best_move)
+    Total_Score += board_score(board_state, best_move)
     return best_move
 
 
@@ -68,7 +68,7 @@ def min_move(board_state, max_depth, alphabeta, temp_total):
     while len(moves) != 0:
         board = board_state
         m = moves.pop(0)
-        board.placeToken(m)
+        board.placeFakeToken(m)
         # subtract value of opponent mve from board score val
         temp_total += board_score(board, m)
         # if in final node
@@ -76,9 +76,11 @@ def min_move(board_state, max_depth, alphabeta, temp_total):
             score = temp_total
         else:
             score = max_move(board, max_depth, alphabeta, temp_total)
+        board.removeToken(m)
         if score < alphabeta.b:
             alphabeta.b = score
-        board.removeToken(m)
+        if alphabeta.a > alphabeta.b:
+            break
     return alphabeta.b
 
 
@@ -97,15 +99,17 @@ def max_move(board_state, max_depth, alphabeta, temp_total):
     while len(moves):
         board = board_state
         m = moves.pop(0)
-        board.placeToken(m)
+        board.placeFakeToken(m)
         temp_total += board_score(board, m)
         if max_depth == 1:
             score = temp_total
         else:
             score = min_move(board, max_depth, alphabeta, temp_total)
+        board.removeToken(m)
         if score > alphabeta.a:
             alphabeta.a = score
-        board.removeToken(m)
+        if alphabeta.a > alphabeta.b:
+            break
     return alphabeta.a
 
 

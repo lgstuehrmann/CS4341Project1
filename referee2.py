@@ -10,12 +10,6 @@ import shutil
 
 import copy
 
-class move:
-    def __init__(self, column, row, player):
-        self.c = column
-        self.r = row
-        self.p = player
-
 logging.basicConfig(format='%(levelname)s:  %(message)s', level=logging.DEBUG)
 logger = logging.getLogger(__file__)
 
@@ -69,7 +63,10 @@ class GomokuBoard(object):
         self.move_history.append(move)
         return self._field[move.x][move.y].playField(move.team_name)
 
-    def removeToken(self,move):
+    def placeFakeToken(self, move):
+        return self._field[move.x][move.y].playField(move.team_name)
+
+    def removeToken(self, move):
         return self._field[move.x][move.y].emptyField()
 
     def getBoard(self):

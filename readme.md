@@ -8,9 +8,11 @@ navigate to the directory containing minimax.py, and run the following command:
 1. On Linux:
 
 `./minimax.py`
+
 2. On Windows: 
 
 `python3 minimax.py`
+
 3. On Mac:
 
 `python3 ./minimax.py`

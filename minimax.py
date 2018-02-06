@@ -124,7 +124,7 @@ output: a list of all possible moves that the program should consider
 def get_available_moves(currBoard, team):
     stack = []
     for each in range(currBoard.width):
-        for one in range(1, currBoard.height):
+        for one in range(currBoard.height):
             if currBoard.isFieldOpen(each, one):
                 potentialMove = referee2.Move(team, each, one)
                 stack.append(potentialMove)

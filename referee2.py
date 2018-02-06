@@ -29,7 +29,7 @@ class GomokuBoard(object):
     width = None
     height = None
 
-    def __init__(self, width=15, height=15):
+    def __init__(self, width=8, height=8):
         super(GomokuBoard, self).__init__()
         self.width = width
         self.height = height

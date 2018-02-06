@@ -125,7 +125,7 @@ def get_available_moves(currBoard, team):
     stack = []
     for each in range(currBoard.width): #A to L; no problem here
         for one in range(currBoard.height): #0 to 14
-            if currBoard.isFieldOpen(each, (one + 1)): # A 1 = false
+            if currBoard.isFieldOpen(each, one): # A 1 = false
                 potentialMove = referee2.Move(team, each, (one + 1))
                 stack.append(potentialMove)
     return stack

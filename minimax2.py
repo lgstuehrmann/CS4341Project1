@@ -494,7 +494,7 @@ def turn_loop(board_state):
     t1 = threading.Timer(8, timeout)
     #t2 = threading.Thread(target=make_move)
     while check_turn() == False:
-        sleep(0.025)
+        sleep(0.06)
     t1.start()
     #t2.start()
     val = make_move(board_state)

@@ -224,12 +224,12 @@ def get_available_moves(currBoard, team, m):
         minX = 6
     else:
         maxX = max
-    """
+
     for each in range(currBoard.width): #A to L; no problem here
         for one in range(currBoard.height): #0 to 14
             if currBoard.isFieldOpen(each, one): # A 1 = false
                 potentialMove = Move(team, each, (one + 1))
-                stack.append(potentialMove)
+                stack.append(potentialMove)"""
     random.shuffle(stack)
     return stack
 
@@ -481,7 +481,7 @@ def turn_loop(board_state):
     t1 = threading.Timer(8, timeout)
     #t2 = threading.Thread(target=make_move)
     while check_turn() == False:
-        sleep(0.025)
+        sleep(0.06)
     t1.start()
     #t2.start()
     val = make_move(board_state)

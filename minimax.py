@@ -30,7 +30,10 @@ def minimax(board_state):
     global Total_Score
     # get list of possible moves for player
     moves = get_available_moves(board_state, "Sno_Stu_Son")
+    for each in moves:
+        print(each)
     best_move = moves[0]
+    print("best move:", best_move)
     max_depth = 4
     alphabeta = alpha_beta(float("-inf"), float("inf"))
     while len(moves) != 0:
@@ -122,9 +125,7 @@ def get_available_moves(currBoard, team):
     stack = []
     for each in range(currBoard.width):
         for one in range(1, currBoard.height):
-            if isOccupied(currBoard, each, one):
-                break
-            else:
+            if currBoard.isFieldOpen(each, one):
                 potentialMove = referee2.Move(team, each, one)
                 stack.append(potentialMove)
     return stack

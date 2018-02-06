@@ -32,5 +32,10 @@ the number of board states expanded, as limiting depth to 4, for example, result
 board states, which is a substantial decrease in complexity as compared to expanding all possible board states.
 
 ## Results
+We tested this system by having it play against a clone of itself. This allowed us to test its behavior when playing 
+both first and second and therefore allowed us to observe its behavior in both an offensive and a defensive scenario.
+During these games, the program performed somewhat well, often playing games that resulted in an optimal win. 
+Unfortunately the program also struggled with system latency and timed out frequently due to lack of sufficient 
+pruning. 
 
 ## Discussion

@@ -1,5 +1,6 @@
 # Script for development and testing of the minimax algorithm for Project 1.
 # Will use symmetry to prune identical game boards from the search tree.
+# Developed by Robert Harrison, Brady Snowden, and Lucy Stuehrmann.
 #
 import threading
 from time import sleep
@@ -10,11 +11,14 @@ import random
 # Global Variable Total_Score keeps track of the known score of the board
 
 Total_Score = 0
-Opponent = "groupname"
-best_move = None
-timeout_flag = 0
+Opponent = "groupname" # Global for opponent name
+best_move = None #Variable to store best move as determined by minimax and heuristic
+timeout_flag = 0 #Alert for system time out i.e. system takes over 10 sec to generate a move
 
-
+"""
+This class was taken from referee and modified to work with Python 3.x. We replaced tuples with other variables
+that the environment could better understand; otherwise, this class and its methods remained unchanged.
+"""
 class GomokuBoard(object):
     class _SingleField(object):
         isEmpty = True
@@ -89,7 +93,9 @@ class GomokuBoard(object):
 
         sys.stdout.flush()
 
-
+"""
+This class was taken directly from referee.py.
+"""
 class Move(object):
     def __init__(self, team_name, x_loc, y_loc):
         self.team_name = team_name
@@ -101,13 +107,21 @@ class Move(object):
 
 
 """
+This class is used to save alpha and beta for alpha-beta pruning.
+a = alpha value
+b = beta value
+"""
+class alpha_beta:
+    def __init__(self, alpha, beta):
+        self.a = alpha
+        self.b = beta
+
+"""
 This is the algorithm that looks for the best move for the program to make
-by evaluating the states of the board
+by evaluating the states of the board.
 input: the current state of the gomoku board
 output: the move that our program should make 
 """
-
-
 def minimax(board_state):
     global Total_Score, best_move, timeout_flag
     # get list of possible moves for player
@@ -201,9 +215,8 @@ def max_move(board_state, max_depth, alpha, beta, temp_total):
             break
     return alpha
 
-
-# *** Following functions inside the yet to be made board class
 """
+get_available_moves generates a list of all possible moves given the current board state and the next team to move.
 input: the current state of the board & the team who moves next
 output: a list of all possible moves that the program should consider
 """

@@ -7,7 +7,6 @@ from io import FileIO
 import sys
 import os
 import random
-
 # Global Variable Total_Score keeps track of the known score of the board
 
 Total_Score = 0
@@ -101,12 +100,6 @@ class Move(object):
         return "%s %s %s" % (self.team_name, chr(self.x + ord('a')), (self.y + 1))
 
 
-# alpha_beta class containing alpha beta values
-class alpha_beta:
-    def __init__(self, alpha, beta):
-        self.a = alpha
-        self.b = beta
-
 """
 This is the algorithm that looks for the best move for the program to make
 by evaluating the states of the board
@@ -118,10 +111,9 @@ output: the move that our program should make
 def minimax(board_state):
     global Total_Score, best_move, timeout_flag
     # get list of possible moves for player
-    moves = get_available_moves(board_state, "Sno_Stu_Son2")
+    moves = get_available_moves(board_state, "Sno_Stu_Son2", board_state.move_history[0])
     best_move = moves[0]
-    print("best move:", best_move)
-    max_depth = 3
+    max_depth = 4
     alpha = float("-inf")
     beta = float("inf")
     while len(moves) != 0:
@@ -156,7 +148,7 @@ def min_move(board_state, max_depth, alpha, beta, temp_total):
     global timeout_flag
     max_depth -= 1
     # list of the moves available to the opponent
-    moves = get_available_moves(board_state, Opponent)
+    moves = get_available_moves(board_state, Opponent, board_state.move_history[0])
     while len(moves) != 0:
         board = board_state
         m = moves.pop(0)
@@ -190,7 +182,7 @@ def max_move(board_state, max_depth, alpha, beta, temp_total):
     global timeout_flag
     max_depth -= 1
     # list of the moves available to the player
-    moves = get_available_moves(board_state, "Sno_Stu_Son2")
+    moves = get_available_moves(board_state, "Sno_Stu_Son2", board_state.move_history[0])
     while len(moves):
         board = board_state
         m = moves.pop(0)
@@ -217,13 +209,28 @@ output: a list of all possible moves that the program should consider
 """
 
 
-def get_available_moves(currBoard, team):
+def get_available_moves(currBoard, team, m):
     stack = []
+    """"
+    maxX = 15
+    minX = 0
+    maxY = 15
+    minY = 0
+    if m.x < 9:
+        maxX = 9
+        minX = 0
+    elif m.x > 15:
+        maxX = 15
+        minX = 6
+    else:
+        maxX = max
+    """
     for each in range(currBoard.width): #A to L; no problem here
         for one in range(currBoard.height): #0 to 14
             if currBoard.isFieldOpen(each, one): # A 1 = false
                 potentialMove = Move(team, each, (one + 1))
                 stack.append(potentialMove)
+    random.shuffle(stack)
     return stack
 
 
@@ -253,6 +260,16 @@ def next_board(board_state, move):
     return board_state
 
 
+def getSymbol(currBoard, x, y):
+    team = currBoard.getTeam(Move(None, x, y))
+    if team == None:
+        return "-"
+    elif team == "Sno_Stu_Son2":
+        return "P"
+    else:
+        return "O"
+
+
 """
 determine the "score" of the board 
 input: the state of the board and the last move made
@@ -261,7 +278,119 @@ output: the score difference that the specified move made on the board
 
 
 def board_score(currBoard, move):
-    score = random.randint(1,50)
+    # restrict range to 0 - boardsize
+    if (move.x - 5) < 0:
+        xMin = 0
+    else:
+        xMin = move.x - 5
+    if (move.x + 5) > 14:
+        xMax = 14
+    else:
+        xMax = move.x + 5
+    if (move.y - 5) < 0:
+        yMin = 0
+    else:
+        yMin = move.y - 5
+    if (move.y + 5) > 14:
+        yMax = 14
+    else:
+        yMax = move.y + 5
+
+    xdir = ""
+    ydir = ""
+    prediag1 = ""
+    prediag2 = ""
+    prediag3 = ""
+    prediag4 = ""
+
+    for x in range(xMin, xMax + 1):
+        xdir += getSymbol(currBoard, x, move.y)
+    for y in range(yMin, yMax + 1):
+        ydir += getSymbol(currBoard, move.x, y)
+    xStart = move.x
+    yStart = move.y
+    while xStart >= xMin and yStart >= yMin:
+        prediag1 += getSymbol(currBoard, xStart, yStart)
+        xStart -= 1
+        yStart -= 1
+    xStart = move.x
+    yStart = move.y
+    while xStart <= xMax and yStart >= yMin:
+        prediag2 += getSymbol(currBoard, xStart, yStart)
+        xStart += 1
+        yStart -= 1
+    xStart = move.x - 1
+    yStart = move.y + 1
+    while xStart >= xMin and yStart <= yMax:
+        prediag3 += getSymbol(currBoard, xStart, yStart)
+        xStart -= 1
+        yStart += 1
+    xStart = move.x + 1
+    yStart = move.y + 1
+    while xStart <= xMax and yStart <= yMax:
+        prediag4 += getSymbol(currBoard, xStart, yStart)
+        xStart += 1
+        yStart += 1
+
+    diag1 = "".join(reversed(prediag1)) + prediag4
+    diag2 = "".join(reversed(prediag3)) + prediag2
+
+    # scoring moves
+    # search directions for OO---, -OO--, --OO-, ---OO
+    # CLOSED 2			   POO---, ---OOP
+    # OPEN 3				   -OOO-
+    # CLOSED 3			   --OOOP, POOO--
+    # OPEN 4				   -OOOO-
+    # CLOSED 4			   -OOOOP, POOOO-
+    # FIVE				   OOOOO
+
+    if xdir.find("P") == -1 and xdir.find("O") == -1 and ydir.find("P") == -1 and ydir.find("O") == -1 and diag1.find(
+            "P") == -1 and diag1.find("O") == -1 and diag2.find("P") == -1 and diag2.find("O") == -1:
+        score = -1
+    else:
+        pO2 = xdir.count("PP---") + xdir.count("-PP--") + xdir.count("--PP-") + xdir.count("---PP")
+        pO2 += ydir.count("PP---") + ydir.count("-PP--") + ydir.count("--PP-") + ydir.count("---PP")
+        pO2 += diag1.count("PP---") + diag1.count("-PP--") + diag1.count("--PP-") + diag1.count("---PP")
+        pO2 += diag2.count("PP---") + diag2.count("-PP--") + diag2.count("--PP-") + diag2.count("---PP")
+
+        pCl2 = xdir.count("OPP---") + xdir.count("---PPO") + ydir.count("OPP---") + ydir.count("---PPO")
+        pCl2 += diag1.count("OPP---") + diag1.count("---PPO") + diag2.count("OPP---") + diag2.count("---PPO")
+
+        pO3 = xdir.count("-PPP-") + ydir.count("-PPP-") + diag1.count("-PPP-") + diag2.count("-PPP-")
+
+        pCl3 = xdir.count("OPPP--") + xdir.count("--PPPO") + ydir.count("OPPP--") + ydir.count("--PPPO")
+        pCl3 += diag1.count("OPPP--") + diag1.count("--PPPO") + diag2.count("OPPP--") + diag2.count("--PPPO")
+
+        pO4 = xdir.count("-PPPP-") + ydir.count("-PPPP-") + diag1.count("-PPPP-") + diag2.count("-PPPP-")
+
+        pCl4 = xdir.count("OPPPP-") + xdir.count("-PPPPO") + ydir.count("OPPPP-") + ydir.count("-PPPPO")
+        pCl4 += diag1.count("OPPPP-") + diag1.count("-PPPPO") + diag2.count("OPPPP-") + diag2.count("-PPPPO")
+
+        p5 = xdir.count("PPPPP") + ydir.count("PPPPP") + diag1.count("PPPPP") + diag2.count("PPPPP")
+
+        oppO2 = xdir.count("OO---") + xdir.count("-OO--") + xdir.count("--OO-") + xdir.count("---OO")
+        oppO2 += ydir.count("OO---") + ydir.count("-OO--") + ydir.count("--OO-") + ydir.count("---OO")
+        oppO2 += diag1.count("OO---") + diag1.count("-OO--") + diag1.count("--OO-") + diag1.count("---OO")
+        oppO2 += diag2.count("OO---") + diag2.count("-OO--") + diag2.count("--OO-") + diag2.count("---OO")
+
+        oppCl2 = xdir.count("POO---") + xdir.count("---OOP") + ydir.count("POO---") + ydir.count("---OOP")
+        oppCl2 += diag1.count("POO---") + diag1.count("---OOP") + diag2.count("POO---") + diag2.count("---OOP")
+
+        oppO3 = xdir.count("-OOO-") + ydir.count("-OOO-") + diag1.count("-OOO-") + diag2.count("-OOO-")
+
+        oppCl3 = xdir.count("POOO--") + xdir.count("--OOOP") + ydir.count("POOO--") + ydir.count("--OOOP")
+        oppCl3 += diag1.count("POOO--") + diag1.count("--OOOP") + diag2.count("POOO--") + diag2.count("--OOOP")
+
+        oppO4 = xdir.count("-OOOO-") + ydir.count("-OOOO-") + diag1.count("-OOOO-") + diag2.count("-OOOO-")
+
+        oppCl4 = xdir.count("POOOO-") + xdir.count("-OOOOP") + ydir.count("POOOO-") + ydir.count("-OOOOP")
+        oppCl4 += diag1.count("POOOO-") + diag1.count("-OOOOP") + diag2.count("POOOO-") + diag2.count("-OOOOP")
+
+        opp5 = xdir.count("OOOOO") + ydir.count("OOOOO") + diag1.count("OOOOO") + diag2.count("OOOOO")
+
+        playerScore = pO2 * 2 + pCl2 + pO3 * 200 + pCl3 * 2 + pO4 * 2000 + pCl4 * 200 + p5 * 2000
+        oppScore = oppO2 * 2 + oppCl2 + oppO3 * 2000 + oppCl3 * 20 + oppO4 * 20000 + oppCl4 * 2000 + opp5 * 20000
+        score = playerScore - oppScore
     return score
 
 
@@ -335,6 +464,7 @@ def make_move(board_state):
                 playerMove = minimax(board_state)
             board_state.placeToken(playerMove)
             Total_Score += board_score(board_state, playerMove)
+            print("Total score", Total_Score)
             moveString = move_to_str(playerMove)
         if timeout_flag == 0:
             with open("move_file", 'w') as f:

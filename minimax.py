@@ -260,6 +260,16 @@ def next_board(board_state, move):
     return board_state
 
 
+def getSymbol(currBoard, x, y):
+    team = currBoard.getTeam(Move(None, x, y))
+    if team == None:
+        return "-"
+    elif team == "Sno_Stu_Son":
+        return "P"
+    else:
+        return "O"
+
+
 """
 determine the "score" of the board 
 input: the state of the board and the last move made
@@ -286,37 +296,44 @@ def board_score(currBoard, move):
     else:
         yMax = move.y + 5
 
-    smallBoard = [[0 for x in range(xMax - xMin)] for y in range(yMax - yMin)]
-    smallx = 0
-    smally = 0
-    for each in range(xMin, xMax):
-        for one in range(yMin, yMax):
-            if each < 0 or one < 0:
-                smallBoard[smallx][smally] = "/"
-            else:
-                team = currBoard.getTeam(Move(None, each, one))
-                if team == None:
-                    smallBoard[smallx][smally] = "-"
-                elif team == "Sno_Stu_Son2":
-                    smallBoard[smallx][smally] = "P"
-                else:
-                    smallBoard[smallx][smally] = "O"
-            smally = smally + 1
-        smally = 0
-        smallx = smallx + 1
-    # small board initialized
-    print(smallBoard)
-    # possible wins
     xdir = ""
     ydir = ""
-    diag1 = ""
-    diag2 = ""
-    for each in range(11):
-        xdir += smallBoard[each][5]
-        diag1 += smallBoard[each][each]
-        diag2 += smallBoard[each][11 - each]
-    for each in range(11):
-        ydir += smallBoard[5][each]
+    prediag1 = ""
+    prediag2 = ""
+    prediag3 = ""
+    prediag4 = ""
+
+    for x in range(xMin, xMax + 1):
+        xdir += getSymbol(currBoard, x, move.y)
+    for y in range(yMin, yMax + 1):
+        ydir += getSymbol(currBoard, move.x, y)
+    xStart = move.x
+    yStart = move.y
+    while xStart >= xMin and yStart >= yMin:
+        prediag1 += getSymbol(currBoard, xStart, yStart)
+        xStart -= 1
+        yStart -= 1
+    xStart = move.x
+    yStart = move.y
+    while xStart <= xMax and yStart >= yMin:
+        prediag2 += getSymbol(currBoard, xStart, yStart)
+        xStart += 1
+        yStart -= 1
+    xStart = move.x - 1
+    yStart = move.y + 1
+    while xStart >= xMin and yStart <= yMax:
+        prediag3 += getSymbol(currBoard, xStart, yStart)
+        xStart -= 1
+        yStart += 1
+    xStart = move.x + 1
+    yStart = move.y + 1
+    while xStart <= xMax and yStart <= yMax:
+        prediag4 += getSymbol(currBoard, xStart, yStart)
+        xStart += 1
+        yStart += 1
+
+    diag1 = "".join(reversed(prediag1)) + prediag4
+    diag2 = "".join(reversed(prediag3)) + prediag2
 
     # scoring moves
     # search directions for OO---, -OO--, --OO-, ---OO
@@ -447,6 +464,7 @@ def make_move(board_state):
                 playerMove = minimax(board_state)
             board_state.placeToken(playerMove)
             Total_Score += board_score(board_state, playerMove)
+            print("Total score", Total_Score)
             moveString = move_to_str(playerMove)
         if timeout_flag == 0:
             with open("move_file", 'w') as f:

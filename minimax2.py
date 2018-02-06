@@ -4,13 +4,15 @@
 import threading
 from time import sleep
 from io import FileIO
-import os.path
 import sys
+import os
 
 # Global Variable Total_Score keeps track of the known score of the board
+
 Total_Score = 0
 Opponent = "groupname"
 best_move = None
+timeout_flag = 0
 
 
 class GomokuBoard(object):
@@ -113,11 +115,11 @@ output: the move that our program should make
 
 
 def minimax(board_state):
-    global Total_Score, best_move
+    global Total_Score, best_move, timeout_flag
     # get list of possible moves for player
     moves = get_available_moves(board_state, "Sno_Stu_Son2")
     best_move = moves[0]
-    print("best move", best_move)
+    print("best move:", best_move)
     max_depth = 4
     alphabeta = alpha_beta(float("-inf"), float("inf"))
     while len(moves) != 0:
@@ -134,6 +136,8 @@ def minimax(board_state):
         if score > alphabeta.a:
             best_move = m
             alphabeta.a = score
+        if timeout_flag == 1:
+            break
     # Before returning move, add board score change made by best_move
     return best_move
 
@@ -147,6 +151,7 @@ on a heuristic function we have yet to write
 
 
 def min_move(board_state, max_depth, alphabeta, temp_total):
+    global timeout_flag
     max_depth -= 1
     # list of the moves available to the opponent
     moves = get_available_moves(board_state, Opponent)
@@ -166,6 +171,8 @@ def min_move(board_state, max_depth, alphabeta, temp_total):
             alphabeta.b = score
         if alphabeta.a > alphabeta.b:
             break
+        if timeout_flag == 1:
+            break
     return alphabeta.b
 
 
@@ -178,6 +185,7 @@ might make based on a heuristic function we have yet to write
 
 
 def max_move(board_state, max_depth, alphabeta, temp_total):
+    global timeout_flag
     max_depth -= 1
     # list of the moves available to the player
     moves = get_available_moves(board_state, "Sno_Stu_Son2")
@@ -194,6 +202,8 @@ def max_move(board_state, max_depth, alphabeta, temp_total):
         if score > alphabeta.a:
             alphabeta.a = score
         if alphabeta.a > alphabeta.b:
+            break
+        if timeout_flag == 1:
             break
     return alphabeta.a
 
@@ -251,7 +261,7 @@ output: the score difference that the specified move made on the board
 def board_score(currBoard, move):
     # restrict range to 0 - boardsize
     if (move.x - 5) < 0:
-        xMin = 0;
+        xMin = 0
     else:
         xMin = move.x-5
     if (move.x + 5) > 14:
@@ -259,7 +269,7 @@ def board_score(currBoard, move):
     else:
         xMax = move.x + 5
     if (move.y - 5) < 0:
-        yMin = 0;
+        yMin = 0
     else:
         yMin = move.y - 5
     if (move.y + 5) > 14:
@@ -267,18 +277,21 @@ def board_score(currBoard, move):
     else:
         yMax = move.y + 5
 
-    smallBoard = [[0 for x in range(11)] for y in range(11)]
+    smallBoard = [[0 for x in range(xMax - xMin)] for y in range(yMax - yMin)]
     smallx = 0
     smally = 0
     for each in range(xMin, xMax):
         for one in range(yMin, yMax):
-            team = currBoard.getTeam(Move(None, each, one))
-            if team == None:
-                smallBoard[smallx][smally] = "-"
-            elif team == "Sno_Stu_Son":
-                smallBoard[smallx][smally] = "P"
+            if each < 0 or one < 0:
+                smallBoard[smallx][smally] = "/"
             else:
-                smallBoard[smallx][smally] = "O"
+                team = currBoard.getTeam(Move(None, each, one))
+                if team == None:
+                    smallBoard[smallx][smally] = "-"
+                elif team == "Sno_Stu_Son2":
+                    smallBoard[smallx][smally] = "P"
+                else:
+                    smallBoard[smallx][smally] = "O"
             smally = smally + 1
         smally = 0
         smallx = smallx + 1
@@ -390,20 +403,17 @@ def letter_to_int(letter):
     return ord(letter) - ord('A')
 
 
-timeout_flag = 0
-
-
 def timeout():
     global timeout_flag
-    timeout_flag = 1
     FileIO("move_file", 'r').close()
     with open("move_file", 'w') as f:
         move = move_to_str(best_move)
         f.write(move)
+    timeout_flag = 1
 
 
 def make_move(board_state):
-    global Opponent, Total_Score
+    global Opponent, Total_Score, timeout_flag
     oppMove = None #referee2.Move(Opponent, letter_to_int("A"), 1)
     playerMove = None #referee2.Move("Sno_Stu_Son2", letter_to_int("A"), 1)
     if check_end() == False:
@@ -457,5 +467,6 @@ def turn_loop(board_state):
 if __name__ == "__main__":
     Current_Board_State = GomokuBoard(15, 15)
     while not check_end():
+        timeout_flag = 0
         Current_Board_State = turn_loop(Current_Board_State)
         sleep(0.5)

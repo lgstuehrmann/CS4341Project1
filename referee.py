@@ -19,7 +19,7 @@ board_height = 15
 board_width = 15
 length_to_win = 5
 
-turn_length_in_seconds = 250
+turn_length_in_seconds = 10
 
 move_file_name = "move_file"
 

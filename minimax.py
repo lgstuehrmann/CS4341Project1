@@ -4,13 +4,97 @@
 import threading
 from time import sleep
 from io import FileIO
-import referee2
 import os.path
+import sys
 
 # Global Variable Total_Score keeps track of the known score of the board
+
 Total_Score = 0
 #Current_Board_State = None          # Referee doesn't use a global board variable
 Opponent = "groupname"
+
+
+class GomokuBoard(object):
+    class _SingleField(object):
+        isEmpty = True
+        team = None
+
+        def playField(self, team):
+            self.isEmpty = False
+            self.team = team
+            return True
+
+        # Added to remove pieces at the end of the loop in minimax
+        def emptyField(self):
+            self.isEmpty = True
+            self.team = None
+            return True
+
+    width = None
+    height = None
+
+    def __init__(self, width=8, height=8):
+        super(GomokuBoard, self).__init__()
+        self.width = width
+        self.height = height
+        self._field = [[self._SingleField() for y in range(height)]
+                       for x in range(width)]
+
+        self.move_history = []  # not really necessary for us right?
+
+    def __getitem__(self, index):
+        (x, y) = index
+        return self._field[x][y]
+
+    def isFieldOpen(self, row, column):
+        return self._field[row][column].isEmpty
+
+    def placeToken(self, move):
+        self.move_history.append(move)
+        return self._field[move.x][move.y].playField(move.team_name)
+
+    def placeFakeToken(self, move):
+        return self._field[move.x][move.y].playField(move.team_name)
+
+    def removeToken(self, move):
+        return self._field[move.x][move.y].emptyField()
+
+    def printBoard(self, teams):
+        print("")
+        print("%s -- %s" % ('X', teams[0]))
+        print("%s -- %s" % ('O', teams[1]))
+        print("")
+        sys.stdout.write("   ")
+        for x in range(self.width):
+            sys.stdout.write('%s ' % (chr(x + ord('A'))))
+        sys.stdout.write("\n")
+        for y in range(self.height):
+            sys.stdout.write('%02s ' % (y + 1))
+            for x in range(self.width):
+                if self._field[x][y].team is None:
+                    sys.stdout.write('-')
+                else:
+                    # team_name_hash = hashlib.md5(self._field[x][y].team).hexdigest()
+                    if teams.index(self._field[x][y].team) == 0:
+                        team_color = 'X'
+                    else:
+                        team_color = 'O'
+                    sys.stdout.write(team_color)
+                sys.stdout.write(' ')
+            sys.stdout.write('\n')
+
+        sys.stdout.flush()
+
+
+class Move(object):
+    def __init__(self, team_name, x_loc, y_loc):
+        self.team_name = team_name
+        self.x = x_loc
+        self.y = y_loc - 1
+
+    def __str__(self):
+        return "%s %s %s" % (self.team_name, chr(self.x + ord('a')), (self.y + 1))
+
 
 # alpha_beta class containing alpha beta values
 class alpha_beta:
@@ -126,7 +210,7 @@ def get_available_moves(currBoard, team):
     for each in range(currBoard.width): #A to L; no problem here
         for one in range(currBoard.height): #0 to 14
             if currBoard.isFieldOpen(each, one): # A 1 = false
-                potentialMove = referee2.Move(team, each, (one + 1))
+                potentialMove = Move(team, each, (one + 1))
                 stack.append(potentialMove)
     return stack
 
@@ -139,7 +223,7 @@ returns false otherwise
 
 
 def isOccupied(currBoard, x, y):
-    if referee2.GomokuBoard.isFieldOpen(currBoard, x, y):
+    if GomokuBoard.isFieldOpen(currBoard, x, y):
         check = False
     else:
         check = True
@@ -278,7 +362,7 @@ def check_end():
 
 def str_to_move(moveString):
     moveList = moveString.split()
-    return referee2.Move(moveList[0], letter_to_int(moveList[1].upper()), int(moveList[2]))
+    return Move(moveList[0], letter_to_int(moveList[1].upper()), int(moveList[2]))
 
 
 def move_to_str(move):
@@ -315,7 +399,7 @@ def make_move(board_state):
                 # White stones, make a move
                 # playerMove = minimax(empty board_state)
                 print("Empty file")
-                playerMove = referee2.Move("Sno_Stu_Son", letter_to_int("H"), 8)
+                playerMove = Move("Sno_Stu_Son", letter_to_int("H"), 8)
             else:
                 # If there is a move in the file, then this is not the first move of the game
                 # Black stones, send opponent's move to str_to_move
@@ -356,7 +440,7 @@ def turn_loop(board_state):
 
 
 if __name__ == "__main__":
-    Current_Board_State = referee2.GomokuBoard(15, 15)
+    Current_Board_State = GomokuBoard(15, 15)
     while not check_end():
         Current_Board_State = turn_loop(Current_Board_State)
         sleep(0.5)

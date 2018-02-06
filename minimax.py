@@ -6,7 +6,7 @@ from time import sleep
 from io import FileIO
 import sys
 import os
-
+import random
 # Global Variable Total_Score keeps track of the known score of the board
 
 Total_Score = 0
@@ -100,12 +100,6 @@ class Move(object):
         return "%s %s %s" % (self.team_name, chr(self.x + ord('a')), (self.y + 1))
 
 
-# alpha_beta class containing alpha beta values
-class alpha_beta:
-    def __init__(self, alpha, beta):
-        self.a = alpha
-        self.b = beta
-
 """
 This is the algorithm that looks for the best move for the program to make
 by evaluating the states of the board
@@ -117,11 +111,11 @@ output: the move that our program should make
 def minimax(board_state):
     global Total_Score, best_move, timeout_flag
     # get list of possible moves for player
-    moves = get_available_moves(board_state, "Sno_Stu_Son")
+    moves = get_available_moves(board_state, "Sno_Stu_Son", board_state.move_history[0])
     best_move = moves[0]
-    print("best move:", best_move)
     max_depth = 4
-    alphabeta = alpha_beta(float("-inf"), float("inf"))
+    alpha = float("-inf")
+    beta = float("inf")
     while len(moves) != 0:
         board = board_state
         m = moves.pop(0)
@@ -130,12 +124,12 @@ def minimax(board_state):
         board.placeFakeToken(m)
         temp_total += board_score(board, m)
         # Now look at the move options available to the min player and get score
-        score = min_move(board, max_depth, alphabeta, temp_total)
+        score = min_move(board, max_depth, alpha, beta, temp_total)
         board.removeToken(m)
         # check to see if the move is the best move based on score knowledge
-        if score > alphabeta.a:
+        if score > alpha:
             best_move = m
-            alphabeta.a = score
+            alpha = score
         if timeout_flag == 1:
             break
     # Before returning move, add board score change made by best_move
@@ -150,11 +144,11 @@ on a heuristic function we have yet to write
 """
 
 
-def min_move(board_state, max_depth, alphabeta, temp_total):
+def min_move(board_state, max_depth, alpha, beta, temp_total):
     global timeout_flag
     max_depth -= 1
     # list of the moves available to the opponent
-    moves = get_available_moves(board_state, Opponent)
+    moves = get_available_moves(board_state, Opponent, board_state.move_history[0])
     while len(moves) != 0:
         board = board_state
         m = moves.pop(0)
@@ -165,15 +159,15 @@ def min_move(board_state, max_depth, alphabeta, temp_total):
         if max_depth == 1:
             score = temp_total
         else:
-            score = max_move(board, max_depth, alphabeta, temp_total)
+            score = max_move(board, max_depth, alpha, beta, temp_total)
         board.removeToken(m)
-        if score < alphabeta.b:
-            alphabeta.b = score
-        if alphabeta.a > alphabeta.b:
+        if score < beta:
+            beta = score
+        if alpha > beta:
             break
         if timeout_flag == 1:
             break
-    return alphabeta.b
+    return beta
 
 
 """
@@ -184,11 +178,11 @@ might make based on a heuristic function we have yet to write
 """
 
 
-def max_move(board_state, max_depth, alphabeta, temp_total):
+def max_move(board_state, max_depth, alpha, beta, temp_total):
     global timeout_flag
     max_depth -= 1
     # list of the moves available to the player
-    moves = get_available_moves(board_state, "Sno_Stu_Son")
+    moves = get_available_moves(board_state, "Sno_Stu_Son", board_state.move_history[0])
     while len(moves):
         board = board_state
         m = moves.pop(0)
@@ -197,15 +191,15 @@ def max_move(board_state, max_depth, alphabeta, temp_total):
         if max_depth == 1:
             score = temp_total
         else:
-            score = min_move(board, max_depth, alphabeta, temp_total)
+            score = min_move(board, max_depth, alpha, beta, temp_total)
         board.removeToken(m)
-        if score > alphabeta.a:
-            alphabeta.a = score
-        if alphabeta.a > alphabeta.b:
+        if score > alpha:
+            alpha = score
+        if alpha > beta:
             break
         if timeout_flag == 1:
             break
-    return alphabeta.a
+    return alpha
 
 
 # *** Following functions inside the yet to be made board class
@@ -215,13 +209,28 @@ output: a list of all possible moves that the program should consider
 """
 
 
-def get_available_moves(currBoard, team):
+def get_available_moves(currBoard, team, m):
     stack = []
+    """"
+    maxX = 15
+    minX = 0
+    maxY = 15
+    minY = 0
+    if m.x < 9:
+        maxX = 9
+        minX = 0
+    elif m.x > 15:
+        maxX = 15
+        minX = 6
+    else:
+        maxX = max
+    """
     for each in range(currBoard.width): #A to L; no problem here
         for one in range(currBoard.height): #0 to 14
             if currBoard.isFieldOpen(each, one): # A 1 = false
                 potentialMove = Move(team, each, (one + 1))
                 stack.append(potentialMove)
+    random.shuffle(stack)
     return stack
 
 
@@ -251,6 +260,16 @@ def next_board(board_state, move):
     return board_state
 
 
+def getSymbol(currBoard, x, y):
+    team = currBoard.getTeam(Move(None, x, y))
+    if team == None:
+        return "-"
+    elif team == "Sno_Stu_Son":
+        return "P"
+    else:
+        return "O"
+
+
 """
 determine the "score" of the board 
 input: the state of the board and the last move made
@@ -263,7 +282,7 @@ def board_score(currBoard, move):
     if (move.x - 5) < 0:
         xMin = 0
     else:
-        xMin = move.x-5
+        xMin = move.x - 5
     if (move.x + 5) > 14:
         xMax = 14
     else:
@@ -277,37 +296,44 @@ def board_score(currBoard, move):
     else:
         yMax = move.y + 5
 
-    smallBoard = [[0 for x in range(xMax - xMin)] for y in range(yMax - yMin)]
-    smallx = 0
-    smally = 0
-    for each in range(xMin, xMax):
-        for one in range(yMin, yMax):
-            if each < 0 or one < 0:
-                smallBoard[smallx][smally] = "/"
-            else:
-                team = currBoard.getTeam(Move(None, each, one))
-                if team == None:
-                    smallBoard[smallx][smally] = "-"
-                elif team == "Sno_Stu_Son":
-                    smallBoard[smallx][smally] = "P"
-                else:
-                    smallBoard[smallx][smally] = "O"
-            smally = smally + 1
-        smally = 0
-        smallx = smallx + 1
-    # small board initialized
-    print(smallBoard)
-    # possible wins
     xdir = ""
     ydir = ""
-    diag1 = ""
-    diag2 = ""
-    for each in range(11):
-        xdir += smallBoard[each][5]
-        diag1 += smallBoard[each][each]
-        diag2 += smallBoard[each][11 - each]
-    for each in range(11):
-        ydir += smallBoard[5][each]
+    prediag1 = ""
+    prediag2 = ""
+    prediag3 = ""
+    prediag4 = ""
+
+    for x in range(xMin, xMax + 1):
+        xdir += getSymbol(currBoard, x, move.y)
+    for y in range(yMin, yMax + 1):
+        ydir += getSymbol(currBoard, move.x, y)
+    xStart = move.x
+    yStart = move.y
+    while xStart >= xMin and yStart >= yMin:
+        prediag1 += getSymbol(currBoard, xStart, yStart)
+        xStart -= 1
+        yStart -= 1
+    xStart = move.x
+    yStart = move.y
+    while xStart <= xMax and yStart >= yMin:
+        prediag2 += getSymbol(currBoard, xStart, yStart)
+        xStart += 1
+        yStart -= 1
+    xStart = move.x - 1
+    yStart = move.y + 1
+    while xStart >= xMin and yStart <= yMax:
+        prediag3 += getSymbol(currBoard, xStart, yStart)
+        xStart -= 1
+        yStart += 1
+    xStart = move.x + 1
+    yStart = move.y + 1
+    while xStart <= xMax and yStart <= yMax:
+        prediag4 += getSymbol(currBoard, xStart, yStart)
+        xStart += 1
+        yStart += 1
+
+    diag1 = "".join(reversed(prediag1)) + prediag4
+    diag2 = "".join(reversed(prediag3)) + prediag2
 
     # scoring moves
     # search directions for OO---, -OO--, --OO-, ---OO
@@ -318,7 +344,8 @@ def board_score(currBoard, move):
     # CLOSED 4			   -OOOOP, POOOO-
     # FIVE				   OOOOO
 
-    if xdir.find("P") == -1 and xdir.find("O") == -1 and ydir.find("P") == -1 and ydir.find("O") == -1 and diag1.find("P") == -1 and diag1.find("O") == -1 and diag2.find("P") == -1 and diag2.find("O") == -1:
+    if xdir.find("P") == -1 and xdir.find("O") == -1 and ydir.find("P") == -1 and ydir.find("O") == -1 and diag1.find(
+            "P") == -1 and diag1.find("O") == -1 and diag2.find("P") == -1 and diag2.find("O") == -1:
         score = -1
     else:
         pO2 = xdir.count("PP---") + xdir.count("-PP--") + xdir.count("--PP-") + xdir.count("---PP")
@@ -437,6 +464,7 @@ def make_move(board_state):
                 playerMove = minimax(board_state)
             board_state.placeToken(playerMove)
             Total_Score += board_score(board_state, playerMove)
+            print("Total score", Total_Score)
             moveString = move_to_str(playerMove)
         if timeout_flag == 0:
             with open("move_file", 'w') as f:

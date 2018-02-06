@@ -113,7 +113,7 @@ def minimax(board_state):
     # get list of possible moves for player
     moves = get_available_moves(board_state, "Sno_Stu_Son", board_state.move_history[0])
     best_move = moves[0]
-    max_depth = 4
+    max_depth = 3
     alpha = float("-inf")
     beta = float("inf")
     while len(moves) != 0:
@@ -211,26 +211,35 @@ output: a list of all possible moves that the program should consider
 
 def get_available_moves(currBoard, team, m):
     stack = []
-    """"
     maxX = 15
     minX = 0
     maxY = 15
     minY = 0
-    if m.x < 9:
-        maxX = 9
+    if m.x < 7:
+        maxX = 7
         minX = 0
     elif m.x > 15:
         maxX = 15
-        minX = 6
+        minX = 8
     else:
-        maxX = max
-
-    for each in range(currBoard.width): #A to L; no problem here
-        for one in range(currBoard.height): #0 to 14
+        minX = m.x - 7
+        maxX = m.x
+    if m.y < 7:
+        maxY = 7
+        minY = 0
+    elif m.y > 15:
+        maxY = 15
+        minY = 8
+    else:
+        minY = m.y - 7
+        maxY = m.y
+    for each in range(minX, maxX): #A to L; no problem here
+        for one in range(minY, maxY): #0 to 14
             if currBoard.isFieldOpen(each, one): # A 1 = false
                 potentialMove = Move(team, each, (one + 1))
-                stack.append(potentialMove)"""
-    random.shuffle(stack)
+                stack.append(potentialMove)
+    x = len(stack)
+    print(x)
     return stack
 
 

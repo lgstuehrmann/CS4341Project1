@@ -226,41 +226,41 @@ output: a list of all possible moves that the program should consider
 
 def get_available_moves(currBoard, team, m):
     stack = []
-    maxX = 15
+    maxX = currBoard.width
     minX = 0
-    maxY = 15
+    maxY = currBoard.height
     minY = 0
     numMoves = currBoard.move_history.__len__()
     if numMoves < 3:
         minX = max(0, m.x - 2)
-        maxX = min(15, m.x + 2)
+        maxX = min(currBoard.width, m.x + 2)
         minY = max(0, m.y - 2)
-        maxY = min(15, m.y + 2)
+        maxY = min(currBoard.height, m.y + 2)
     elif numMoves >= 3 and numMoves < 7:
         minX = max(0, m.x - 3)
-        maxX = min(15, m.x + 3)
+        maxX = min(currBoard.width, m.x + 3)
         minY = max(0, m.y - 3)
-        maxY = min(15, m.y + 3)
+        maxY = min(currBoard.height, m.y + 3)
     elif numMoves >= 7 and numMoves < 10:
         minX = max(0, m.x - 4)
-        maxX = min(15, m.x + 4)
+        maxX = min(currBoard.width, m.x + 4)
         minY = max(0, m.y - 4)
-        maxY = min(15, m.y + 4)
+        maxY = min(currBoard.height, m.y + 4)
     elif numMoves >= 10 and numMoves < 15:
         minX = max(0, m.x - 6)
-        maxX = min(15, m.x + 6)
+        maxX = min(currBoard.width, m.x + 6)
         minY = max(0, m.y - 6)
-        maxY = min(15, m.y + 6)
+        maxY = min(currBoard.height, m.y + 6)
     elif numMoves >= 15 and numMoves < 25:
         minX = max(0, m.x - 9)
-        maxX = min(15, m.x + 9)
+        maxX = min(currBoard.width, m.x + 9)
         minY = max(0, m.y - 9)
-        maxY = min(15, m.y + 9)
+        maxY = min(currBoard.height, m.y + 9)
     else:
         minX = 0
-        maxX = 15
+        maxX = currBoard.width
         minY = 0
-        maxY = 15
+        maxY = currBoard.height
         # if m.x < 7:
         #     maxX = 7
         #     minX = 0

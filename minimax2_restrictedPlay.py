@@ -1,6 +1,5 @@
 # Script for development and testing of the minimax algorithm for Project 1.
 # Will use symmetry to prune identical game boards from the search tree.
-# Developed by Robert Harrison, Brady Snowden, and Lucy Stuehrmann.
 #
 import threading
 import time
@@ -12,14 +11,11 @@ import random
 # Global Variable Total_Score keeps track of the known score of the board
 
 Total_Score = 0
-Opponent = "groupname" # Global for opponent name
-best_move = None #Variable to store best move as determined by minimax and heuristic
-timeout_flag = 0 #Alert for system time out i.e. system takes over 10 sec to generate a move
+Opponent = "groupname"
+best_move = None
+timeout_flag = 0
 
-"""
-This class was taken from referee and modified to work with Python 3.x. We replaced tuples with other variables
-that the environment could better understand; otherwise, this class and its methods remained unchanged.
-"""
+
 class GomokuBoard(object):
     class _SingleField(object):
         isEmpty = True
@@ -94,9 +90,7 @@ class GomokuBoard(object):
 
         sys.stdout.flush()
 
-"""
-This class was taken directly from referee.py.
-"""
+
 class Move(object):
     def __init__(self, team_name, x_loc, y_loc):
         self.team_name = team_name
@@ -108,25 +102,17 @@ class Move(object):
 
 
 """
-This class is used to save alpha and beta for alpha-beta pruning.
-a = alpha value
-b = beta value
-"""
-class alpha_beta:
-    def __init__(self, alpha, beta):
-        self.a = alpha
-        self.b = beta
-
-"""
 This is the algorithm that looks for the best move for the program to make
-by evaluating the states of the board.
+by evaluating the states of the board
 input: the current state of the gomoku board
 output: the move that our program should make 
 """
+
+
 def minimax(board_state):
     global Total_Score, best_move, timeout_flag
     # get list of possible moves for player
-    moves = get_available_moves(board_state, "Sno_Stu_Son2", board_state.move_history[0])
+    moves = get_available_moves(board_state, "Sno_Stu_Son", board_state.move_history[0])
     best_move = moves[0]
     max_depth = 3
     alpha = float("-inf")
@@ -204,7 +190,7 @@ def max_move(board_state, max_depth, alpha, beta, temp_total):
     global timeout_flag
     max_depth -= 1
     # list of the moves available to the player
-    moves = get_available_moves(board_state, "Sno_Stu_Son2", board_state.move_history[0])
+    moves = get_available_moves(board_state, "Sno_Stu_Son", board_state.move_history[0])
     prevMax = 0
     prevMaxMove = None
     while len(moves):
@@ -230,8 +216,9 @@ def max_move(board_state, max_depth, alpha, beta, temp_total):
             break
     return alpha
 
+
+# *** Following functions inside the yet to be made board class
 """
-get_available_moves generates a list of all possible moves given the current board state and the next team to move.
 input: the current state of the board & the team who moves next
 output: a list of all possible moves that the program should consider
 """
@@ -239,59 +226,59 @@ output: a list of all possible moves that the program should consider
 
 def get_available_moves(currBoard, team, m):
     stack = []
-    maxX = 15
+    maxX = currBoard.width
     minX = 0
-    maxY = 15
+    maxY = currBoard.height
     minY = 0
     numMoves = currBoard.move_history.__len__()
     if numMoves < 3:
         minX = max(0, m.x - 2)
-        maxX = min(15, m.x + 2)
+        maxX = min(currBoard.width, m.x + 2)
         minY = max(0, m.y - 2)
-        maxY = min(15, m.y + 2)
+        maxY = min(currBoard.height, m.y + 2)
     elif numMoves >= 3 and numMoves < 7:
         minX = max(0, m.x - 3)
-        maxX = min(15, m.x + 3)
+        maxX = min(currBoard.width, m.x + 3)
         minY = max(0, m.y - 3)
-        maxY = min(15, m.y + 3)
+        maxY = min(currBoard.height, m.y + 3)
     elif numMoves >= 7 and numMoves < 10:
         minX = max(0, m.x - 4)
-        maxX = min(15, m.x + 4)
+        maxX = min(currBoard.width, m.x + 4)
         minY = max(0, m.y - 4)
-        maxY = min(15, m.y + 4)
+        maxY = min(currBoard.height, m.y + 4)
     elif numMoves >= 10 and numMoves < 15:
         minX = max(0, m.x - 6)
-        maxX = min(15, m.x + 6)
+        maxX = min(currBoard.width, m.x + 6)
         minY = max(0, m.y - 6)
-        maxY = min(15, m.y + 6)
+        maxY = min(currBoard.height, m.y + 6)
     elif numMoves >= 15 and numMoves < 25:
         minX = max(0, m.x - 9)
-        maxX = min(15, m.x + 9)
+        maxX = min(currBoard.width, m.x + 9)
         minY = max(0, m.y - 9)
-        maxY = min(15, m.y + 9)
+        maxY = min(currBoard.height, m.y + 9)
     else:
         minX = 0
-        maxX = 15
+        maxX = currBoard.width
         minY = 0
-        maxY = 15
-    # if m.x < 7:
-    #     maxX = 7
-    #     minX = 0
-    # elif m.x > 15:
-    #     maxX = 15
-    #     minX = 8
-    # else:
-    #     minX = m.x - 3
-    #     maxX = m.x + 3
-    # if m.y < 7:
-    #     maxY = 7
-    #     minY = 0
-    # elif m.y > 15:
-    #     maxY = 15
-    #     minY = 8
-    # else:
-    #     minY = m.y - 3
-    #     maxY = m.y + 3
+        maxY = currBoard.height
+        # if m.x < 7:
+        #     maxX = 7
+        #     minX = 0
+        # elif m.x > 15:
+        #     maxX = 15
+        #     minX = 8
+        # else:
+        #     minX = m.x - 3
+        #     maxX = m.x + 3
+        # if m.y < 7:
+        #     maxY = 7
+        #     minY = 0
+        # elif m.y > 15:
+        #     maxY = 15
+        #     minY = 8
+        # else:
+        #     minY = m.y - 3
+        #     maxY = m.y + 3
     for each in range(minX, maxX): #A to L; no problem here
         for one in range(minY, maxY): #0 to 14
             if currBoard.isFieldOpen(each, one): # A 1 = false
@@ -330,7 +317,7 @@ def getSymbol(currBoard, x, y):
     team = currBoard.getTeam(Move(None, x, y))
     if team == None:
         return "-"
-    elif team == "Sno_Stu_Son2":
+    elif team == "Sno_Stu_Son":
         return "P"
     else:
         return "O"
@@ -423,11 +410,16 @@ def board_score(currBoard, move):
         pCl2 += diag1.count("OPP---") + diag1.count("---PPO") + diag2.count("OPP---") + diag2.count("---PPO")
 
         pO3 = xdir.count("-PPP-") + ydir.count("-PPP-") + diag1.count("-PPP-") + diag2.count("-PPP-")
+        pO3 += xdir.count("P-PP") + ydir.count("P-PP") + diag1.count("P-PP") + diag2.count("P-PP")
+        pO3 += xdir.count("PP-P") + ydir.count("PP-P") + diag1.count("PP-P") + diag2.count("PP-P")
 
         pCl3 = xdir.count("OPPP--") + xdir.count("--PPPO") + ydir.count("OPPP--") + ydir.count("--PPPO")
         pCl3 += diag1.count("OPPP--") + diag1.count("--PPPO") + diag2.count("OPPP--") + diag2.count("--PPPO")
 
         pO4 = xdir.count("-PPPP-") + ydir.count("-PPPP-") + diag1.count("-PPPP-") + diag2.count("-PPPP-")
+        pO4 += xdir.count("P-PPP") + ydir.count("P-PPP") + diag1.count("P-PPP") + diag2.count("P-PPP")
+        pO4 += xdir.count("PP-PP") + ydir.count("PP-PP") + diag1.count("PP-PP") + diag2.count("PP-PP")
+        pO4 += xdir.count("PPP-P") + ydir.count("PPP-P") + diag1.count("PPP-P") + diag2.count("PPP-P")
 
         pCl4 = xdir.count("OPPPP-") + xdir.count("-PPPPO") + ydir.count("OPPPP-") + ydir.count("-PPPPO")
         pCl4 += diag1.count("OPPPP-") + diag1.count("-PPPPO") + diag2.count("OPPPP-") + diag2.count("-PPPPO")
@@ -443,11 +435,16 @@ def board_score(currBoard, move):
         oppCl2 += diag1.count("POO---") + diag1.count("---OOP") + diag2.count("POO---") + diag2.count("---OOP")
 
         oppO3 = xdir.count("-OOO-") + ydir.count("-OOO-") + diag1.count("-OOO-") + diag2.count("-OOO-")
+        oppO3 += xdir.count("O-OO") + ydir.count("O-OO") + diag1.count("O-OO") + diag2.count("O-OO")
+        oppO3 += xdir.count("O-OO") + ydir.count("O-OO") + diag1.count("O-OO") + diag2.count("O-OO")
 
         oppCl3 = xdir.count("POOO--") + xdir.count("--OOOP") + ydir.count("POOO--") + ydir.count("--OOOP")
         oppCl3 += diag1.count("POOO--") + diag1.count("--OOOP") + diag2.count("POOO--") + diag2.count("--OOOP")
 
         oppO4 = xdir.count("-OOOO-") + ydir.count("-OOOO-") + diag1.count("-OOOO-") + diag2.count("-OOOO-")
+        oppO4 += xdir.count("O-OOO") + ydir.count("O-OOO") + diag1.count("O-OOO") + diag2.count("O-OOO")
+        oppO4 += xdir.count("OO-OO") + ydir.count("OO-OO") + diag1.count("OO-OO") + diag2.count("OO-OO")
+        oppO4 += xdir.count("OOO-O") + ydir.count("OOO-O") + diag1.count("OOO-O") + diag2.count("OOO-O")
 
         oppCl4 = xdir.count("POOOO-") + xdir.count("-OOOOP") + ydir.count("POOOO-") + ydir.count("-OOOOP")
         oppCl4 += diag1.count("POOOO-") + diag1.count("-OOOOP") + diag2.count("POOOO-") + diag2.count("-OOOOP")
@@ -472,7 +469,7 @@ from there, rather than continually looking at new pieces.
 
 def check_turn():
     # True if our turn, false otherwise
-    return os.path.exists("Sno_Stu_Son2.go")
+    return os.path.exists("Sno_Stu_Son.go")
 
 
 def check_end():
@@ -508,7 +505,7 @@ def timeout():
 def make_move(board_state):
     global Opponent, Total_Score, timeout_flag
     oppMove = None #referee2.Move(Opponent, letter_to_int("A"), 1)
-    playerMove = None #referee2.Move("Sno_Stu_Son2", letter_to_int("A"), 1)
+    playerMove = None #referee2.Move("Sno_Stu_Son", letter_to_int("A"), 1)
     if check_end() == False:
         with open("move_file", 'r') as f:
             move = f.readline()
@@ -517,7 +514,7 @@ def make_move(board_state):
                 # White stones, make a move
                 # playerMove = minimax(empty board_state)
                 print("Empty file")
-                playerMove = Move("Sno_Stu_Son2", letter_to_int("H"), 8)
+                playerMove = Move("Sno_Stu_Son", letter_to_int("H"), 8)
             else:
                 # If there is a move in the file, then this is not the first move of the game
                 # Black stones, send opponent's move to str_to_move

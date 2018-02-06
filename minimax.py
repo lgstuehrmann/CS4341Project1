@@ -9,7 +9,7 @@ import os.path
 
 # Global Variable Total_Score keeps track of the known score of the board
 Total_Score = 0
-Current_Board_State = None          # Referee doesn't use a global board variable
+#Current_Board_State = None          # Referee doesn't use a global board variable
 Opponent = "groupname"
 
 # alpha_beta class containing alpha beta values
@@ -48,8 +48,6 @@ def minimax(board_state):
             best_move = m
             alphabeta.a = score
     # Before returning move, add board score change made by best_move
-    board_state.placeToken(best_move)
-    Total_Score += board_score(board_state, best_move)
     return best_move
 
 
@@ -279,7 +277,7 @@ def check_end():
 
 def str_to_move(moveString):
     moveList = moveString.split()
-    return referee2.Move(moveList[0], letter_to_int(moveList[1].upper()), int(moveList[2]) + 1)
+    return referee2.Move(moveList[0], letter_to_int(moveList[1].upper()), int(moveList[2]))
 
 
 def move_to_str(move):
@@ -304,9 +302,8 @@ def timeout():
         f.write("Sno_Stu_Son D 8")
 
 
-def make_move():
-    global Opponent
-    global Current_Board_State
+def make_move(board_state):
+    global Opponent, Total_Score
     oppMove = None #referee2.Move(Opponent, letter_to_int("A"), 1)
     playerMove = None #referee2.Move("Sno_Stu_Son", letter_to_int("A"), 1)
     if check_end() == False:
@@ -325,38 +322,40 @@ def make_move():
                 print("Opp move", oppMove.x, oppMove.y)
                 Opponent = oppMove.team_name
                 print(Opponent)
-                board_state = next_board(Current_Board_State, oppMove)
+                board_state = next_board(board_state, oppMove)
                 board_state.printBoard(["Sno_Stu_Son", "Sno_Stu_Son2"])
                 playerMove = minimax(board_state)
+            board_state.placeToken(playerMove)
+            Total_Score += board_score(board_state, playerMove)
             moveString = move_to_str(playerMove)
         if timeout_flag == 0:
             with open("move_file", 'w') as f:
                 f.write(moveString)
-            return 0
+            return [0, board_state]
         else:
             print("Move went over 10 second limit")
     else:
         print("Game over")
-    return 1
+    return [1, board_state]
 
 
-def turn_loop():
+def turn_loop(board_state):
     t1 = threading.Timer(8, timeout)
     #t2 = threading.Thread(target=make_move)
     while check_turn() == False:
         sleep(0.025)
     t1.start()
     #t2.start()
-    if make_move() == 0:
+    val = make_move(board_state)
+    if val[0] == 0:
         t1.cancel()
-        return True
+        return val[1]
     else:
-        return False
+        return val[1]
 
 
 if __name__ == "__main__":
-    global Current_Board_State
     Current_Board_State = referee2.GomokuBoard(15, 15)
     while not check_end():
-        turn_loop()
+        Current_Board_State = turn_loop(Current_Board_State)
         sleep(0.5)

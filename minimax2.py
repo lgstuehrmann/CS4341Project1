@@ -9,7 +9,7 @@ import os.path
 
 # Global Variable Total_Score keeps track of the known score of the board
 Total_Score = 0
-Current_Board_State = None
+#Current_Board_State = None          # Referee doesn't use a global board variable
 Opponent = "groupname"
 
 # alpha_beta class containing alpha beta values
@@ -17,15 +17,6 @@ class alpha_beta:
     def __init__(self, alpha, beta):
         self.a = alpha
         self.b = beta
-
-
-# move class with columns and rows
-# class move:
-#     def __init__(self, column, row, player):
-#         self.c = column
-#         self.r = row
-#         self.p = player
-
 
 """
 This is the algorithm that looks for the best move for the program to make
@@ -45,21 +36,18 @@ def minimax(board_state):
     while len(moves) != 0:
         board = board_state
         m = moves.pop(0)
-        # print(m)
-        # print("next move")
         temp_total = Total_Score
-        # make a clone of the board with new move added
-        clone = next_board(board, m)
-        temp_total += board_score(clone, m)
+        # add move to the board
+        board.placeFakeToken(m)
+        temp_total += board_score(board, m)
         # Now look at the move options available to the min player and get score
-        score = min_move(clone, max_depth, alphabeta, temp_total)
+        score = min_move(board, max_depth, alphabeta, temp_total)
+        board.removeToken(m)
         # check to see if the move is the best move based on score knowledge
         if score > alphabeta.a:
             best_move = m
             alphabeta.a = score
     # Before returning move, add board score change made by best_move
-    clone = next_board(board_state, best_move)
-    Total_Score += board_score(clone, best_move)
     return best_move
 
 
@@ -78,16 +66,19 @@ def min_move(board_state, max_depth, alphabeta, temp_total):
     while len(moves) != 0:
         board = board_state
         m = moves.pop(0)
-        clone = next_board(board, m)
+        board.placeFakeToken(m)
         # subtract value of opponent mve from board score val
-        temp_total += board_score(clone, m)
+        temp_total += board_score(board, m)
         # if in final node
         if max_depth == 1:
             score = temp_total
         else:
-            score = max_move(clone, max_depth, alphabeta, temp_total)
+            score = max_move(board, max_depth, alphabeta, temp_total)
+        board.removeToken(m)
         if score < alphabeta.b:
             alphabeta.b = score
+        if alphabeta.a > alphabeta.b:
+            break
     return alphabeta.b
 
 
@@ -106,14 +97,17 @@ def max_move(board_state, max_depth, alphabeta, temp_total):
     while len(moves):
         board = board_state
         m = moves.pop(0)
-        clone = next_board(board, m)
-        temp_total += board_score(clone, m)
+        board.placeFakeToken(m)
+        temp_total += board_score(board, m)
         if max_depth == 1:
             score = temp_total
         else:
-            score = min_move(clone, max_depth, alphabeta, temp_total)
+            score = min_move(board, max_depth, alphabeta, temp_total)
+        board.removeToken(m)
         if score > alphabeta.a:
             alphabeta.a = score
+        if alphabeta.a > alphabeta.b:
+            break
     return alphabeta.a
 
 
@@ -283,7 +277,7 @@ def check_end():
 
 def str_to_move(moveString):
     moveList = moveString.split()
-    return referee2.Move(moveList[0], letter_to_int(moveList[1].upper()), int(moveList[2]) + 1)
+    return referee2.Move(moveList[0], letter_to_int(moveList[1].upper()), int(moveList[2]))
 
 
 def move_to_str(move):
@@ -308,9 +302,8 @@ def timeout():
         f.write("Sno_Stu_Son2 D 8")
 
 
-def make_move():
-    global Opponent
-    global Current_Board_State
+def make_move(board_state):
+    global Opponent, Total_Score
     oppMove = None #referee2.Move(Opponent, letter_to_int("A"), 1)
     playerMove = None #referee2.Move("Sno_Stu_Son2", letter_to_int("A"), 1)
     if check_end() == False:
@@ -329,37 +322,40 @@ def make_move():
                 print("Opp move", oppMove.x, oppMove.y)
                 Opponent = oppMove.team_name
                 print(Opponent)
-                board_state = next_board(Current_Board_State, oppMove)
+                board_state = next_board(board_state, oppMove)
                 board_state.printBoard(["Sno_Stu_Son", "Sno_Stu_Son2"])
                 playerMove = minimax(board_state)
+            board_state.placeToken(playerMove)
+            Total_Score += board_score(board_state, playerMove)
             moveString = move_to_str(playerMove)
         if timeout_flag == 0:
             with open("move_file", 'w') as f:
                 f.write(moveString)
-            return 0
+            return [0, board_state]
         else:
             print("Move went over 10 second limit")
     else:
         print("Game over")
-    return 1
+    return [1, board_state]
 
 
-def turn_loop():
+def turn_loop(board_state):
     t1 = threading.Timer(8, timeout)
     #t2 = threading.Thread(target=make_move)
     while check_turn() == False:
         sleep(0.025)
     t1.start()
     #t2.start()
-    if make_move() == 0:
+    val = make_move(board_state)
+    if val[0] == 0:
         t1.cancel()
-        return True
+        return val[1]
     else:
-        return False
+        return val[1]
 
 
 if __name__ == "__main__":
     Current_Board_State = referee2.GomokuBoard(15, 15)
     while not check_end():
-        turn_loop()
+        Current_Board_State = turn_loop(Current_Board_State)
         sleep(0.5)

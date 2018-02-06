@@ -9,8 +9,8 @@ import sys
 
 # Global Variable Total_Score keeps track of the known score of the board
 Total_Score = 0
-#Current_Board_State = None          # Referee doesn't use a global board variable
 Opponent = "groupname"
+best_move = None
 
 
 class GomokuBoard(object):
@@ -57,6 +57,9 @@ class GomokuBoard(object):
 
     def removeToken(self, move):
         return self._field[move.x][move.y].emptyField()
+
+    def getTeam(self, move):
+        return self._field[move.x][move.y].team
 
     def printBoard(self, teams):
         print("")
@@ -110,11 +113,9 @@ output: the move that our program should make
 
 
 def minimax(board_state):
-    global Total_Score
+    global Total_Score, best_move
     # get list of possible moves for player
     moves = get_available_moves(board_state, "Sno_Stu_Son2")
-    for each in moves:
-        print(each)
     best_move = moves[0]
     print("best move", best_move)
     max_depth = 4
@@ -249,36 +250,41 @@ output: the score difference that the specified move made on the board
 
 def board_score(currBoard, move):
     # restrict range to 0 - boardsize
-    xMin = max(move.x - 5, 0)
-    xMax = min(move.x + 5, currBoard.width)
-    yMin = max(move.y - 5, 0)
-    yMax = min(move.y + 5, currBoard.height)
+    xMin = move.x - 5
+    xMax = move.x + 5
+    yMin = move.y - 5
+    yMax = move.y + 5
 
-    smallBoard = [[0 for x in range(xMax - xMin)] for y in range(yMax - yMin)]
+    smallBoard = [[0 for x in range(11)] for y in range(11)]
     smallx = 0
     smally = 0
-    for each in range(xMax, xMin):
+    for each in range(xMin, xMax):
         for one in range(yMin, yMax):
-            team = currBoard.__getitem__[each][one].team
-            if team == None:
-                smallBoard[smallx][smally] = "-"
-            elif team == "Sno_Stu_Son2":
-                smallBoard[smallx][smally] = "P"
+            if each < 0 or one < 0:
+                smallBoard[smallx][smally] = "/"
             else:
-                smallBoard[smallx][smally] = "O"
+                team = currBoard.getTeam(Move(None, each, one))
+                if team == None:
+                    smallBoard[smallx][smally] = "-"
+                elif team == "Sno_Stu_Son":
+                    smallBoard[smallx][smally] = "P"
+                else:
+                    smallBoard[smallx][smally] = "O"
             smally = smally + 1
+        smally = 0
         smallx = smallx + 1
     # small board initialized
+    print(smallBoard)
     # possible wins
     xdir = ""
     ydir = ""
     diag1 = ""
     diag2 = ""
-    for each in range(smallx):
+    for each in range(11):
         xdir += smallBoard[each][5]
         diag1 += smallBoard[each][each]
-        diag2 += smallBoard[each][smallx - each]
-    for each in range(smally):
+        diag2 += smallBoard[each][11 - each]
+    for each in range(11):
         ydir += smallBoard[5][each]
 
     # scoring moves
@@ -383,7 +389,8 @@ def timeout():
     timeout_flag = 1
     FileIO("move_file", 'r').close()
     with open("move_file", 'w') as f:
-        f.write("Sno_Stu_Son2 D 8")
+        move = move_to_str(best_move)
+        f.write(move)
 
 
 def make_move(board_state):

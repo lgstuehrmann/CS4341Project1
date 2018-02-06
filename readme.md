@@ -20,6 +20,7 @@ navigate to the directory containing minimax.py, and run the following command:
 ## Utility Function Explanation
 
 ## Evaluation Function Explanation
+The function that evaluates the score of a board is called board_score(). This function takes in a board state and the previous move made on that board. Starting with the x,y position of the last move made, this function creates strings of the 5 positions in each direction including diagonally, stopping if the edge of the board is reached. These strings are then searched for patterns that would indicate scoring moves. The searched patterns are detailed in a comment in the board_score function. The occurances of these patterns are counted and then weighted, with opponent winning moves worth more points than player winning moves, to prioritize defense over offense.
 
 ## Heuristics & Strategies for Expansion
 In order to ensure that system timeout did not occur, it was necessary to implement strategies for pruning and node

@@ -250,26 +250,35 @@ output: the score difference that the specified move made on the board
 
 def board_score(currBoard, move):
     # restrict range to 0 - boardsize
-    xMin = move.x - 5
-    xMax = move.x + 5
-    yMin = move.y - 5
-    yMax = move.y + 5
+    if (move.x - 5) < 0:
+        xMin = 0;
+    else:
+        xMin = move.x-5
+    if (move.x + 5) > 14:
+        xMax = 14
+    else:
+        xMax = move.x + 5
+    if (move.y - 5) < 0:
+        yMin = 0;
+    else:
+        yMin = move.y - 5
+    if (move.y + 5) > 14:
+        yMax = 14
+    else:
+        yMax = move.y + 5
 
     smallBoard = [[0 for x in range(11)] for y in range(11)]
     smallx = 0
     smally = 0
     for each in range(xMin, xMax):
         for one in range(yMin, yMax):
-            if each < 0 or one < 0:
-                smallBoard[smallx][smally] = "/"
+            team = currBoard.getTeam(Move(None, each, one))
+            if team == None:
+                smallBoard[smallx][smally] = "-"
+            elif team == "Sno_Stu_Son":
+                smallBoard[smallx][smally] = "P"
             else:
-                team = currBoard.getTeam(Move(None, each, one))
-                if team == None:
-                    smallBoard[smallx][smally] = "-"
-                elif team == "Sno_Stu_Son":
-                    smallBoard[smallx][smally] = "P"
-                else:
-                    smallBoard[smallx][smally] = "O"
+                smallBoard[smallx][smally] = "O"
             smally = smally + 1
         smally = 0
         smallx = smallx + 1

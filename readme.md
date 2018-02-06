@@ -22,6 +22,14 @@ navigate to the directory containing minimax.py, and run the following command:
 ## Evaluation Function Explanation
 
 ## Heuristics & Strategies for Expansion
+In order to ensure that system timeout did not occur, it was necessary to implement strategies for pruning and node
+expansion selection. We implemented alpha-beta pruning first in order to remove unprofitable branches from the tree. 
+This helped decrease system latency, however, there were still memory and space issues when expanding the game tree.
+We also used depth-limited iterative search to expand the game tree and preselected the initial move. Preselecting the 
+initial move to be in the center of the board reduced the possible number of board states from 225! to 224!, which 
+greatly decreases the number of board states that need to be expanded. Depth-limited iterative search also decreased
+the number of board states expanded, as limiting depth to 4, for example, results in an expansion of only (225! - 221!)
+board states, which is a substantial decrease in complexity as compared to expanding all possible board states.
 
 ## Results
 

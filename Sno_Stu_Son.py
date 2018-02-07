@@ -91,7 +91,7 @@ def minimax(board_state):
     # get list of possible moves for player
     moves = get_available_moves(board_state, "Sno_Stu_Son", board_state.move_history[0])
     best_move = moves[0]
-    max_depth = 3
+    max_depth = 4
     alpha = float("-inf")
     beta = float("inf")
     while len(moves) != 0:
@@ -478,6 +478,7 @@ def make_move(board_state):
             print("Move went over 10 second limit")
     else:
         print("Game over")
+        return [0, board_state]
     return [1, board_state]
 
 

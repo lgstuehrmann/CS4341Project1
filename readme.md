@@ -18,30 +18,76 @@ navigate to the directory containing minimax.py, and run the following command:
 `python3 ./minimax.py`
 
 ## Utility Function Explanation
+The function that evaluates the score of a board is called `board_score()`.
+This function takes in a board state and the previous move made on that 
+board. Starting with the x,y position of the last move made, this function
+creates strings of the 5 positions in each direction including diagonally,
+stopping if the edge of the board is reached. These strings are then 
+searched for patterns that would indicate scoring moves. The searched 
+patterns are detailed in a comment in the board_score function. 
+The instances of these patterns are counted and then weighted, with 
+opponent winning moves worth more points than player winning moves, 
+to prioritize defense over offense.
 
 ## Evaluation Function Explanation
-The function that evaluates the score of a board is called board_score(). This function takes in a board state and the 
-previous move made on that board. Starting with the x,y position of the last move made, this function creates strings 
-of the 5 positions in each direction including diagonally, stopping if the edge of the board is reached. These strings 
-are then searched for patterns that would indicate scoring moves. The searched patterns are detailed in a comment in 
-the board_score function. The instances of these patterns are counted and then weighted, with opponent winning moves 
-worth more points than player winning moves, to prioritize defense over offense.
+We used an evaluation function that assigned a value to each grid space
+within 11 squares of the opponent's last move for each potential board
+state. This function, which is named `board_score()` in the code, works
+as-follows:
+1. The function finds an 11 by 11 square centered on the opponent's previous
+move
+2. Starting from the center of the square, the function subdivides it into
+four quadrants and examines them each individually.
+3. When evaluating the quadrants, the function assigns negative values to
+grid spaces that would not result in the program gaining an advantage, i.e.
+spaces that are not directly in a diagonal, horizontal, or vertical line of
+the center, or spaces that are blocked by the opponent's pieces. 
+4. The function assigns positive values for squares that would result in 
+the program gaining the advantage, i.e. spaces that would result in forks,
+3 or more pieces in a row, or that would block an opponent's move.
+5. The sum of the values of the grid spaces is returned, which gives a 
+rough estimate of the potential heuristic value of a board state. This is 
+then fed into the minimax algorithm so that it can decide which potential
+board state gives the best score.   
 
-## Heuristics & Strategies for Expansion
-In order to ensure that system timeout did not occur, it was necessary to implement strategies for pruning and node
-expansion selection. We implemented alpha-beta pruning first in order to remove unprofitable branches from the tree. 
-This helped decrease system latency, however, there were still memory and space issues when expanding the game tree.
-We also used depth-limited iterative search to expand the game tree and preselected the initial move. Preselecting the 
-initial move to be in the center of the board reduced the possible number of board states from 225! to 224!, which 
-greatly decreases the number of board states that need to be expanded. Depth-limited iterative search also decreased
-the number of board states expanded, as limiting depth to 4, for example, results in an expansion of only (225! - 221!)
-board states, which is a substantial decrease in complexity as compared to expanding all possible board states.
+This results in a reasonable heuristic estimate for use in conjunction with 
+the minimax algorithm, and typically results in good move decisions.
+
+
+## Heuristics and Strategies for Expansion
+In order to ensure that system timeout did not occur, it was necessary to
+implement strategies for pruning and node expansion selection. We
+implemented alpha-beta pruning first in order to remove unprofitable 
+branches from the tree. This helped decrease system latency, however, 
+there were still memory and space issues when expanding the game tree.
+We also used depth-limited iterative search to expand the game tree and 
+preselected the initial move. Preselecting the initial move to be in the 
+center of the board reduced the possible number of board states from 225! 
+to 224!, which greatly decreases the number of board states that need to 
+be expanded. Depth-limited iterative search also decreased the number of 
+board states expanded, as limiting depth to 4, for example, results in an 
+expansion of only (225! - 221!) board states, which is a substantial 
+decrease in complexity as compared to expanding all possible board 
+states. Furthermore, to decrease complexity in the game tree, we limited
+the area represented in a board state to an 11 by 11 grid centered at 
+the opponent's last move. This greatly decreased system latency and did 
+not lead to a significant sacrifice in gameplay, as most desirable moves
+typically occur close to a previous move.
 
 ## Results
-We tested this system by having it play against a clone of itself. This allowed us to test its behavior when playing 
-both first and second and therefore allowed us to observe its behavior in both an offensive and a defensive scenario.
-During these games, the program performed somewhat well, often playing games that resulted in an optimal win. 
-Unfortunately the program also struggled with system latency and timed out frequently due to lack of sufficient 
-pruning. 
+We tested this system by having it play against a clone of itself. 
+This allowed us to test its behavior when playing both first and
+second and therefore allowed us to observe its behavior in both an 
+offensive and a defensive scenario. During these games, the program 
+performed somewhat well, often playing games that resulted in an 
+optimal win. We also tested the program against an online gomoku program,
+which can be found at the following link:  
+`http://gomoku.yjyao.com/`   
+Against this opponent, once again, the system performs relatively well.
+It mainly displayed defensive behavior, as the opponent AI was typically
+more aggressive and played better, but it was making intelligent and 
+rational defensive decisions.  
+One source of concern was the system latency. Occasionally, in long games, 
+our program would time out, which was not desired.
 
 ## Discussion

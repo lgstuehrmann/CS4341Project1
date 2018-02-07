@@ -14,7 +14,7 @@ Total_Score = 0
 Opponent = "groupname"
 best_move = None
 timeout_flag = 0
-
+first_move = 0
 
 class GomokuBoard(object):
     class _SingleField(object):
@@ -112,7 +112,7 @@ output: the move that our program should make
 def minimax(board_state):
     global Total_Score, best_move, timeout_flag
     # get list of possible moves for player
-    moves = get_available_moves(board_state, "Sno_Stu_Son", board_state.move_history[0])
+    moves = get_available_moves(board_state, "Sno_Stu_Son2", board_state.move_history[0])
     best_move = moves[0]
     max_depth = 3
     alpha = float("-inf")
@@ -167,9 +167,9 @@ def min_move(board_state, max_depth, alpha, beta, temp_total):
                 prevMinMove = m
                 score = max_move(board, max_depth, alpha, beta, temp_total)
             else:
-                score = 0
+                score = float("inf")
         board.removeToken(m)
-        if score < beta:
+        if score <= beta:
             beta = score
         if alpha > beta:
             break
@@ -190,7 +190,7 @@ def max_move(board_state, max_depth, alpha, beta, temp_total):
     global timeout_flag
     max_depth -= 1
     # list of the moves available to the player
-    moves = get_available_moves(board_state, "Sno_Stu_Son", board_state.move_history[0])
+    moves = get_available_moves(board_state, "Sno_Stu_Son2", board_state.move_history[0])
     prevMax = 0
     prevMaxMove = None
     while len(moves):
@@ -206,9 +206,9 @@ def max_move(board_state, max_depth, alpha, beta, temp_total):
                 prevMaxMove = m
                 score = min_move(board, max_depth, alpha, beta, temp_total)
             else:
-                score = 0
+                score = float("-inf")
         board.removeToken(m)
-        if score > alpha:
+        if score >= alpha:
             alpha = score
         if alpha > beta:
             break
@@ -317,7 +317,7 @@ def getSymbol(currBoard, x, y):
     team = currBoard.getTeam(Move(None, x, y))
     if team == None:
         return "-"
-    elif team == "Sno_Stu_Son":
+    elif team == "Sno_Stu_Son2":
         return "P"
     else:
         return "O"
@@ -469,7 +469,7 @@ from there, rather than continually looking at new pieces.
 
 def check_turn():
     # True if our turn, false otherwise
-    return os.path.exists("Sno_Stu_Son.go")
+    return os.path.exists("Sno_Stu_Son2.go")
 
 
 def check_end():
@@ -503,18 +503,19 @@ def timeout():
 
 
 def make_move(board_state):
-    global Opponent, Total_Score, timeout_flag
+    global Opponent, Total_Score, timeout_flag, first_move
     oppMove = None #referee2.Move(Opponent, letter_to_int("A"), 1)
-    playerMove = None #referee2.Move("Sno_Stu_Son", letter_to_int("A"), 1)
+    playerMove = None #referee2.Move("Sno_Stu_Son2", letter_to_int("A"), 1)
     if check_end() == False:
         with open("move_file", 'r') as f:
             move = f.readline()
-            if len(move) == 0:
+            if first_move != 1:
                 # If the first line of the file is empty, then this is the first move of the game
                 # White stones, make a move
                 # playerMove = minimax(empty board_state)
                 print("Empty file")
-                playerMove = Move("Sno_Stu_Son", letter_to_int("H"), 8)
+                playerMove = Move("Sno_Stu_Son2", letter_to_int("H"), 8)
+                first_move = 1
             else:
                 # If there is a move in the file, then this is not the first move of the game
                 # Black stones, send opponent's move to str_to_move
@@ -523,7 +524,7 @@ def make_move(board_state):
                 Opponent = oppMove.team_name
                 print(Opponent)
                 board_state = next_board(board_state, oppMove)
-                #board_state.printBoard(["Sno_Stu_Son", "Sno_Stu_Son2"])
+                #board_state.printBoard(["Sno_Stu_Son2", "Sno_Stu_Son"])
                 playerMove = minimax(board_state)
             board_state.placeToken(playerMove)
             Total_Score += board_score(board_state, playerMove)

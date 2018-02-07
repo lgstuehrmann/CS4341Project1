@@ -152,22 +152,20 @@ def min_move(board_state, max_depth, alpha, beta, temp_total):
     moves = get_available_moves(board_state, Opponent, board_state.move_history[0])
     prevMin = 0
     prevMinMove = None
+    avg = 0
+    mid = len(moves) // 2
     while len(moves) != 0:
         board = board_state
         m = moves.pop(0)
         board.placeFakeToken(m)
         # subtract value of opponent mve from board score val
         temp_total += board_score(board, m)
+        avg += temp_total
         # if in final node
         if max_depth == 1:
             score = temp_total
         else:
-            if temp_total < prevMin:
-                prevMin = temp_total
-                prevMinMove = m
-                score = max_move(board, max_depth, alpha, beta, temp_total)
-            else:
-                score = 0
+            score = max_move(board, max_depth, alpha, beta, temp_total)
         board.removeToken(m)
         if score < beta:
             beta = score
@@ -175,6 +173,9 @@ def min_move(board_state, max_depth, alpha, beta, temp_total):
             break
         if timeout_flag == 1:
             break
+        if len(moves) > mid:
+            if avg < 0:
+                break
     return beta
 
 
@@ -193,20 +194,18 @@ def max_move(board_state, max_depth, alpha, beta, temp_total):
     moves = get_available_moves(board_state, "Sno_Stu_Son", board_state.move_history[0])
     prevMax = 0
     prevMaxMove = None
+    avg = 0
+    mid = len(moves) // 2
     while len(moves):
         board = board_state
         m = moves.pop(0)
         board.placeFakeToken(m)
         temp_total += board_score(board, m)
+        #avg += temp_total
         if max_depth == 1:
             score = temp_total
         else:
-            if temp_total > prevMax:
-                prevMax = temp_total
-                prevMaxMove = m
-                score = min_move(board, max_depth, alpha, beta, temp_total)
-            else:
-                score = 0
+            score = min_move(board, max_depth, alpha, beta, temp_total)
         board.removeToken(m)
         if score > alpha:
             alpha = score
@@ -214,6 +213,9 @@ def max_move(board_state, max_depth, alpha, beta, temp_total):
             break
         if timeout_flag == 1:
             break
+        if len(moves) > mid:
+            if avg < 0:
+                break
     return alpha
 
 
@@ -231,27 +233,27 @@ def get_available_moves(currBoard, team, m):
     maxY = currBoard.height
     minY = 0
     numMoves = currBoard.move_history.__len__()
-    if numMoves < 3:
+    if numMoves < 5:
         minX = max(0, m.x - 2)
         maxX = min(currBoard.width, m.x + 2)
         minY = max(0, m.y - 2)
         maxY = min(currBoard.height, m.y + 2)
-    elif numMoves >= 3 and numMoves < 7:
+    elif numMoves >= 5 and numMoves < 9:
         minX = max(0, m.x - 3)
         maxX = min(currBoard.width, m.x + 3)
         minY = max(0, m.y - 3)
         maxY = min(currBoard.height, m.y + 3)
-    elif numMoves >= 7 and numMoves < 10:
+    elif numMoves >= 9 and numMoves < 15:
         minX = max(0, m.x - 4)
         maxX = min(currBoard.width, m.x + 4)
         minY = max(0, m.y - 4)
         maxY = min(currBoard.height, m.y + 4)
-    elif numMoves >= 10 and numMoves < 15:
+    elif numMoves >= 15 and numMoves < 19:
         minX = max(0, m.x - 6)
         maxX = min(currBoard.width, m.x + 6)
         minY = max(0, m.y - 6)
         maxY = min(currBoard.height, m.y + 6)
-    elif numMoves >= 15 and numMoves < 25:
+    elif numMoves >= 19 and numMoves < 25:
         minX = max(0, m.x - 9)
         maxX = min(currBoard.width, m.x + 9)
         minY = max(0, m.y - 9)
@@ -261,24 +263,6 @@ def get_available_moves(currBoard, team, m):
         maxX = currBoard.width
         minY = 0
         maxY = currBoard.height
-        # if m.x < 7:
-        #     maxX = 7
-        #     minX = 0
-        # elif m.x > 15:
-        #     maxX = 15
-        #     minX = 8
-        # else:
-        #     minX = m.x - 3
-        #     maxX = m.x + 3
-        # if m.y < 7:
-        #     maxY = 7
-        #     minY = 0
-        # elif m.y > 15:
-        #     maxY = 15
-        #     minY = 8
-        # else:
-        #     minY = m.y - 3
-        #     maxY = m.y + 3
     for each in range(minX, maxX): #A to L; no problem here
         for one in range(minY, maxY): #0 to 14
             if currBoard.isFieldOpen(each, one): # A 1 = false

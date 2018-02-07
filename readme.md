@@ -17,35 +17,18 @@ navigate to the directory containing minimax.py, and run the following command:
 
 `python3 ./minimax.py`
 
-## Utility Function Explanation
-The function that evaluates the score of a board is called `board_score()`.
-This function takes in a board state and the previous move made on that 
-board. Starting with the x,y position of the last move made, this function
-creates strings of the 5 positions in each direction including diagonally,
-stopping if the edge of the board is reached. These strings are then 
-searched for patterns that would indicate scoring moves. The searched 
-patterns are detailed in a comment in the board_score function. 
-The instances of these patterns are counted and then weighted, with 
-opponent winning moves worth more points than player winning moves, 
-to prioritize defense over offense.
-
-## Evaluation Function Explanation
+## Utility and Evaluation Function Explanation
 We used an evaluation function that assigned a value to each grid space
 within 11 squares of the opponent's last move for each potential board
 state. This function, which is named `board_score()` in the code, works
 as-follows:
 1. The function finds an 11 by 11 square centered on the opponent's previous
 move
-2. Starting from the center of the square, the function subdivides it into
-four quadrants and examines them each individually.
-3. When evaluating the quadrants, the function assigns negative values to
-grid spaces that would not result in the program gaining an advantage, i.e.
-spaces that are not directly in a diagonal, horizontal, or vertical line of
-the center, or spaces that are blocked by the opponent's pieces. 
-4. The function assigns positive values for squares that would result in 
-the program gaining the advantage, i.e. spaces that would result in forks,
-3 or more pieces in a row, or that would block an opponent's move.
-5. The sum of the values of the grid spaces is returned, which gives a 
+2. Starting from the center of the square, the function checks each cardinal and ordinal direction for scoring moves.
+3. When evaluating the scoring moves in each direction, the function assigns negative values to opponent scoring moves 
+and positive values to player scoring moves, with moves that are closer to a win condition weighted higher (these
+scoring moves are defined in a comment within the function).
+4. The sum of the values of the grid spaces is returned, which gives a 
 rough estimate of the potential heuristic value of a board state. This is 
 then fed into the minimax algorithm so that it can decide which potential
 board state gives the best score.   

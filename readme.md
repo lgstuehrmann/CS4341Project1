@@ -7,15 +7,15 @@ This program runs on Python 3.x. In order to run it, open a terminal,
 navigate to the directory containing minimax.py, and run the following command:
 1. On Linux:
 
-`./minimax.py`
+`./minimax_restrictedPlay.py`
 
 2. On Windows: 
 
-`python3 minimax.py`
+`python3 minimax_restrictedPlay.py`
 
 3. On Mac:
 
-`python3 ./minimax.py`
+`python3 ./minimax_restrictedPlay.py`
 
 ## Utility and Evaluation Function Explanation
 We used an evaluation function that assigned a value to each grid space
@@ -37,7 +37,7 @@ This results in a reasonable heuristic estimate for use in conjunction with
 the minimax algorithm, and typically results in good move decisions.
 
 
-## Heuristics and Strategies for Expansion
+##Strategies for Expansion
 In order to ensure that system timeout did not occur, it was necessary to
 implement strategies for pruning and node expansion selection. We
 implemented alpha-beta pruning first in order to remove unprofitable 
@@ -74,3 +74,9 @@ One source of concern was the system latency. Occasionally, in long games,
 our program would time out, which was not desired.
 
 ## Discussion
+Overall, the evaluation function, the resulting heuristic, and the strategies
+used to limit game tree size that we picked resulted in reasonable ability
+to play and win Gomoku. It also resulted in a manageable level of system
+latency which resulted in few time outs. The program displayed strategic 
+behavior and was able to both be offensive and defensive depending on 
+the opponent's strategy. 

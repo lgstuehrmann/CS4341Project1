@@ -7,15 +7,15 @@ This program runs on Python 3.x. In order to run it, open a terminal,
 navigate to the directory containing minimax.py, and run the following command:
 1. On Linux:
 
-`./minimax_restrictedPlay.py`
+`./Sno_Stu_Son.py`
 
 2. On Windows: 
 
-`python3 minimax_restrictedPlay.py`
+`python3 Sno_Stu_Son.py`
 
 3. On Mac:
 
-`python3 ./minimax_restrictedPlay.py`
+`python3 ./Sno_Stu_Son.py`
 
 ## Utility and Evaluation Function Explanation
 We used an evaluation function that assigned a value to each grid space

@@ -14,7 +14,7 @@ Total_Score = 0
 Opponent = "groupname"
 best_move = None
 timeout_flag = 0
-
+first_move = 0
 
 class GomokuBoard(object):
     class _SingleField(object):
@@ -114,7 +114,7 @@ def minimax(board_state):
     # get list of possible moves for player
     moves = get_available_moves(board_state, "Sno_Stu_Son", board_state.move_history[0])
     best_move = moves[0]
-    max_depth = 3
+    max_depth = 4
     alpha = float("-inf")
     beta = float("inf")
     while len(moves) != 0:
@@ -150,18 +150,14 @@ def min_move(board_state, max_depth, alpha, beta, temp_total):
     max_depth -= 1
     # list of the moves available to the opponent
     moves = get_available_moves(board_state, Opponent, board_state.move_history[0])
-    prevMin = 0
-    prevMinMove = None
     avg = 0
     mid = len(moves) // 2
     while len(moves) != 0:
         board = board_state
         m = moves.pop(0)
         board.placeFakeToken(m)
-        # subtract value of opponent mve from board score val
         temp_total += board_score(board, m)
         avg += temp_total
-        # if in final node
         if max_depth == 1:
             score = temp_total
         else:
@@ -174,7 +170,7 @@ def min_move(board_state, max_depth, alpha, beta, temp_total):
         if timeout_flag == 1:
             break
         if len(moves) > mid:
-            if avg < 0:
+            if avg > 0:
                 break
     return beta
 
@@ -192,8 +188,6 @@ def max_move(board_state, max_depth, alpha, beta, temp_total):
     max_depth -= 1
     # list of the moves available to the player
     moves = get_available_moves(board_state, "Sno_Stu_Son", board_state.move_history[0])
-    prevMax = 0
-    prevMaxMove = None
     avg = 0
     mid = len(moves) // 2
     while len(moves):
@@ -201,7 +195,7 @@ def max_move(board_state, max_depth, alpha, beta, temp_total):
         m = moves.pop(0)
         board.placeFakeToken(m)
         temp_total += board_score(board, m)
-        #avg += temp_total
+        avg += temp_total
         if max_depth == 1:
             score = temp_total
         else:
@@ -233,27 +227,27 @@ def get_available_moves(currBoard, team, m):
     maxY = currBoard.height
     minY = 0
     numMoves = currBoard.move_history.__len__()
-    if numMoves < 5:
+    if numMoves < 3:
         minX = max(0, m.x - 2)
         maxX = min(currBoard.width, m.x + 2)
         minY = max(0, m.y - 2)
         maxY = min(currBoard.height, m.y + 2)
-    elif numMoves >= 5 and numMoves < 9:
+    elif numMoves >= 3 and numMoves < 7:
         minX = max(0, m.x - 3)
         maxX = min(currBoard.width, m.x + 3)
         minY = max(0, m.y - 3)
         maxY = min(currBoard.height, m.y + 3)
-    elif numMoves >= 9 and numMoves < 15:
+    elif numMoves >= 7 and numMoves < 13:
         minX = max(0, m.x - 4)
         maxX = min(currBoard.width, m.x + 4)
         minY = max(0, m.y - 4)
         maxY = min(currBoard.height, m.y + 4)
-    elif numMoves >= 15 and numMoves < 19:
+    elif numMoves >= 13 and numMoves < 16:
         minX = max(0, m.x - 6)
         maxX = min(currBoard.width, m.x + 6)
         minY = max(0, m.y - 6)
         maxY = min(currBoard.height, m.y + 6)
-    elif numMoves >= 19 and numMoves < 25:
+    elif numMoves >= 16 and numMoves < 25:
         minX = max(0, m.x - 9)
         maxX = min(currBoard.width, m.x + 9)
         minY = max(0, m.y - 9)
@@ -487,18 +481,19 @@ def timeout():
 
 
 def make_move(board_state):
-    global Opponent, Total_Score, timeout_flag
+    global Opponent, Total_Score, timeout_flag, first_move
     oppMove = None #referee2.Move(Opponent, letter_to_int("A"), 1)
     playerMove = None #referee2.Move("Sno_Stu_Son", letter_to_int("A"), 1)
     if check_end() == False:
         with open("move_file", 'r') as f:
             move = f.readline()
-            if len(move) == 0:
+            if first_move != 1:
                 # If the first line of the file is empty, then this is the first move of the game
                 # White stones, make a move
                 # playerMove = minimax(empty board_state)
                 print("Empty file")
                 playerMove = Move("Sno_Stu_Son", letter_to_int("H"), 8)
+                first_move = 1
             else:
                 # If there is a move in the file, then this is not the first move of the game
                 # Black stones, send opponent's move to str_to_move

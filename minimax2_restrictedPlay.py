@@ -150,31 +150,28 @@ def min_move(board_state, max_depth, alpha, beta, temp_total):
     max_depth -= 1
     # list of the moves available to the opponent
     moves = get_available_moves(board_state, Opponent, board_state.move_history[0])
-    prevMin = 0
-    prevMinMove = None
+    avg = 0
+    mid = len(moves) // 2
     while len(moves) != 0:
         board = board_state
         m = moves.pop(0)
         board.placeFakeToken(m)
-        # subtract value of opponent mve from board score val
         temp_total += board_score(board, m)
-        # if in final node
+        avg += temp_total
         if max_depth == 1:
             score = temp_total
         else:
-            if temp_total < prevMin:
-                prevMin = temp_total
-                prevMinMove = m
-                score = max_move(board, max_depth, alpha, beta, temp_total)
-            else:
-                score = float("inf")
+            score = max_move(board, max_depth, alpha, beta, temp_total)
         board.removeToken(m)
-        if score <= beta:
+        if score < beta:
             beta = score
         if alpha > beta:
             break
         if timeout_flag == 1:
             break
+        if len(moves) > mid:
+            if avg > 0:
+                break
     return beta
 
 
@@ -191,29 +188,28 @@ def max_move(board_state, max_depth, alpha, beta, temp_total):
     max_depth -= 1
     # list of the moves available to the player
     moves = get_available_moves(board_state, "Sno_Stu_Son2", board_state.move_history[0])
-    prevMax = 0
-    prevMaxMove = None
+    avg = 0
+    mid = len(moves) // 2
     while len(moves):
         board = board_state
         m = moves.pop(0)
         board.placeFakeToken(m)
         temp_total += board_score(board, m)
+        avg += temp_total
         if max_depth == 1:
             score = temp_total
         else:
-            if temp_total > prevMax:
-                prevMax = temp_total
-                prevMaxMove = m
-                score = min_move(board, max_depth, alpha, beta, temp_total)
-            else:
-                score = float("-inf")
+            score = min_move(board, max_depth, alpha, beta, temp_total)
         board.removeToken(m)
-        if score >= alpha:
+        if score > alpha:
             alpha = score
         if alpha > beta:
             break
         if timeout_flag == 1:
             break
+        if len(moves) > mid:
+            if avg < 0:
+                break
     return alpha
 
 
@@ -241,17 +237,17 @@ def get_available_moves(currBoard, team, m):
         maxX = min(currBoard.width, m.x + 3)
         minY = max(0, m.y - 3)
         maxY = min(currBoard.height, m.y + 3)
-    elif numMoves >= 7 and numMoves < 10:
+    elif numMoves >= 7 and numMoves < 13:
         minX = max(0, m.x - 4)
         maxX = min(currBoard.width, m.x + 4)
         minY = max(0, m.y - 4)
         maxY = min(currBoard.height, m.y + 4)
-    elif numMoves >= 10 and numMoves < 15:
+    elif numMoves >= 13 and numMoves < 16:
         minX = max(0, m.x - 6)
         maxX = min(currBoard.width, m.x + 6)
         minY = max(0, m.y - 6)
         maxY = min(currBoard.height, m.y + 6)
-    elif numMoves >= 15 and numMoves < 25:
+    elif numMoves >= 16 and numMoves < 25:
         minX = max(0, m.x - 9)
         maxX = min(currBoard.width, m.x + 9)
         minY = max(0, m.y - 9)
@@ -261,24 +257,6 @@ def get_available_moves(currBoard, team, m):
         maxX = currBoard.width
         minY = 0
         maxY = currBoard.height
-        # if m.x < 7:
-        #     maxX = 7
-        #     minX = 0
-        # elif m.x > 15:
-        #     maxX = 15
-        #     minX = 8
-        # else:
-        #     minX = m.x - 3
-        #     maxX = m.x + 3
-        # if m.y < 7:
-        #     maxY = 7
-        #     minY = 0
-        # elif m.y > 15:
-        #     maxY = 15
-        #     minY = 8
-        # else:
-        #     minY = m.y - 3
-        #     maxY = m.y + 3
     for each in range(minX, maxX): #A to L; no problem here
         for one in range(minY, maxY): #0 to 14
             if currBoard.isFieldOpen(each, one): # A 1 = false
@@ -451,7 +429,7 @@ def board_score(currBoard, move):
 
         opp5 = xdir.count("OOOOO") + ydir.count("OOOOO") + diag1.count("OOOOO") + diag2.count("OOOOO")
 
-        playerScore = pO2 * 2 + pCl2 + pO3 * 200 + pCl3 * 2 + pO4 * 2000 + pCl4 * 200 + p5 * 2000
+        playerScore = pO2 * 2 + pCl2 + pO3 * 200 + pCl3 * 2 + pO4 * 2000 + pCl4 * 200 + p5 * 20000
         oppScore = oppO2 * 2 + oppCl2 + oppO3 * 2000 + oppCl3 * 20 + oppO4 * 20000 + oppCl4 * 2000 + opp5 * 20000
         score = playerScore - oppScore
     return score
@@ -524,7 +502,7 @@ def make_move(board_state):
                 Opponent = oppMove.team_name
                 print(Opponent)
                 board_state = next_board(board_state, oppMove)
-                #board_state.printBoard(["Sno_Stu_Son2", "Sno_Stu_Son"])
+                #board_state.printBoard(["Sno_Stu_Son2",])
                 playerMove = minimax(board_state)
             board_state.placeToken(playerMove)
             Total_Score += board_score(board_state, playerMove)
